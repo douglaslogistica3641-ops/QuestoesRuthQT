@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Ed. Física — CP-T/2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ────────────────────────────────────────────── */
+:root {
+  --ink:    #1a1a22;
+  --ink2:   #383845;
+  --ink3:   #5a5a6e;
+  --line:   #d8d6e0;
+  --bg:     #f7f6f2;
+  --bg2:    #efede8;
+  --card:   #ffffff;
+  --acc:    #2a4a7f;   /* deep blue */
+  --acc2:   #3d6bbf;
+  --acc3:   #dce8ff;
+  --hl:     #7a4f1a;   /* amber/ochre highlight */
+  --hl2:    #fef3e0;
+  --ok:     #1e5c3a;
+  --ok2:    #e4f5ec;
+  --tab-h:  56px;
+  --hdr-h:  52px;
+}
+
+/* ── RESET ────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+  padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 8px);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ────────────────────────────────────────────── */
+#hdr {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--hdr-h);
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.05), 0 2px 12px rgba(0,0,0,.3);
+}
+#hdr-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .7rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.55);
+}
+#hdr-topic {
+  font-family: 'IBM Plex Serif', serif;
+  font-size: .9rem; font-weight: 600;
+  color: #fff;
+  max-width: 200px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#search-btn {
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,.6);
+  font-size: 1.1rem; padding: 6px;
+  border-radius: 6px; transition: color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+#search-btn:active { color: #fff; }
+
+/* ── SEARCH OVERLAY ────────────────────────────────────── */
+#search-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(10,10,18,.7); backdrop-filter: blur(4px);
+}
+#search-overlay.open { display: flex; flex-direction: column; }
+#search-box {
+  background: var(--card); padding: 14px;
+  border-bottom: 1px solid var(--line);
+  display: flex; gap: 10px; align-items: center;
+}
+#search-input {
+  flex: 1; border: 1.5px solid var(--line); border-radius: 8px;
+  padding: 9px 12px; font-family: 'IBM Plex Sans', sans-serif;
+  font-size: .9rem; color: var(--ink); background: var(--bg);
+  outline: none;
+}
+#search-input:focus { border-color: var(--acc2); }
+#search-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--ink3); font-size: .8rem; font-family: 'IBM Plex Mono', monospace;
+  padding: 6px 8px;
+}
+#search-results {
+  overflow-y: auto; flex: 1; padding: 12px;
+}
+.sr-item {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 8px; padding: 11px 13px; margin-bottom: 8px;
+  cursor: pointer; transition: border-color .15s;
+}
+.sr-item:active { border-color: var(--acc2); }
+.sr-topic { font-family: 'IBM Plex Mono', monospace; font-size: .6rem;
+  color: var(--acc2); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 3px; }
+.sr-title { font-size: .88rem; font-weight: 600; color: var(--ink); }
+.sr-snip { font-size: .78rem; color: var(--ink3); margin-top: 2px; line-height: 1.4; }
+.sr-empty { text-align: center; color: var(--ink3); font-size: .85rem; padding: 40px 20px; }
+
+/* ── BOTTOM NAV ─────────────────────────────────────────── */
+#tab-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  box-shadow: 0 -4px 24px rgba(0,0,0,.35);
+  overflow-x: auto; scrollbar-width: none;
+}
+#tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 0 0 auto; min-width: 70px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 0 8px; height: var(--tab-h);
+  cursor: pointer; border: none; background: transparent;
+  color: rgba(255,255,255,.38);
+  transition: color .18s; position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn::after {
+  content: ''; position: absolute; top: 0; left: 20%; right: 20%;
+  height: 2px; background: var(--acc2);
+  transform: scaleX(0); transition: transform .2s ease; border-radius: 0 0 2px 2px;
+}
+.tab-btn.active { color: #fff; }
+.tab-btn.active::after { transform: scaleX(1); }
+.tab-ic { font-size: 1.1rem; line-height: 1; margin-bottom: 2px; }
+.tab-lbl {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .52rem; letter-spacing: .04em;
+  text-transform: uppercase; white-space: nowrap; line-height: 1;
+}
+
+/* ── PANELS ─────────────────────────────────────────────── */
+.panel { display: none; }
+.panel.active { display: block; animation: fadein .22s ease; }
+@keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+/* ── HERO BANNER ─────────────────────────────────────────── */
+.hero {
+  background: var(--ink);
+  padding: 22px 16px 18px;
+  border-bottom: 3px solid var(--acc2);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: attr(data-icon);
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 5rem; opacity: .06; pointer-events: none; line-height: 1;
+}
+.hero-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem; color: var(--acc2);
+  letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px;
+}
+.hero-title {
+  font-family: 'IBM Plex Serif', serif;
+  font-size: 1.25rem; font-weight: 600; color: #fff; line-height: 1.2;
+}
+.hero-bib {
+  font-size: .72rem; color: rgba(255,255,255,.45);
+  margin-top: 6px; font-style: italic; line-height: 1.4;
+}
+.hero-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.tag {
+  font-family: 'IBM Plex Mono', monospace; font-size: .56rem;
+  border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.5); padding: 2px 8px; border-radius: 3px;
+  letter-spacing: .04em;
+}
+
+/* ── SECTION ─────────────────────────────────────────────── */
+.section { margin: 12px 12px 0; }
+.section:last-child { margin-bottom: 20px; }
+
+/* ── ACCORDION ───────────────────────────────────────────── */
+.acc-wrap { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+.acc-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; background: var(--card);
+  cursor: pointer; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s;
+}
+.acc-hdr:active { background: var(--bg2); }
+.acc-hdr-left { display: flex; align-items: center; gap: 10px; }
+.acc-num {
+  font-family: 'IBM Plex Mono', monospace; font-size: .68rem;
+  background: var(--acc); color: #fff;
+  padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+}
+.acc-ttl { font-size: .9rem; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.acc-arrow {
+  font-size: .7rem; color: var(--ink3); flex-shrink: 0;
+  transition: transform .22s ease;
+}
+.acc-wrap.open .acc-arrow { transform: rotate(180deg); }
+.acc-body {
+  display: none; background: var(--card);
+  border-top: 1px solid var(--line);
+  padding: 14px 14px 16px;
+}
+.acc-wrap.open .acc-body { display: block; }
+
+/* ── CONTENT ELEMENTS ────────────────────────────────────── */
+.prose { font-size: .875rem; color: var(--ink2); line-height: 1.65; }
+.prose + .prose { margin-top: 9px; }
+.prose strong { color: var(--ink); font-weight: 600; }
+.prose em { color: var(--hl); font-style: normal; font-weight: 500; }
+
+/* Key concepts list */
+.kc-list { list-style: none; margin: 10px 0; }
+.kc-list li {
+  display: flex; gap: 9px; padding: 7px 0;
+  border-bottom: 1px solid var(--bg2); font-size: .86rem;
+}
+.kc-list li:last-child { border-bottom: none; }
+.kc-list li::before {
+  content: '▸'; color: var(--acc2); flex-shrink: 0; font-size: .75rem; margin-top: 2px;
+}
+
+/* Callout boxes */
+.callout {
+  border-radius: 7px; padding: 11px 13px; margin: 10px 0;
+  border-left: 3px solid; font-size: .84rem; line-height: 1.5;
+}
+.c-def  { background: var(--acc3); border-color: var(--acc2); color: var(--acc); }
+.c-warn { background: #fff5e6; border-color: #c87020; color: #7a4010; }
+.c-ok   { background: var(--ok2); border-color: var(--ok); color: var(--ok); }
+.c-hl   { background: var(--hl2); border-color: var(--hl); color: var(--hl); }
+.c-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: .58rem;
+  letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+  display: block; margin-bottom: 4px;
+}
+
+/* Formula box */
+.formula {
+  background: var(--ink); color: #e0e8ff;
+  border-radius: 7px; padding: 12px 14px; margin: 10px 0;
+  font-family: 'IBM Plex Mono', monospace; font-size: .82rem;
+  line-height: 1.7; overflow-x: auto;
+}
+.formula .fl { color: rgba(255,255,255,.45); font-size: .68rem; display: block; margin-bottom: 3px; }
+.formula .fv { color: #7dd3fc; font-weight: 500; }
+
+/* Table */
+.tbl-wrap { overflow-x: auto; margin: 10px 0; border-radius: 7px; border: 1px solid var(--line); }
+table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+thead tr { background: var(--ink); }
+thead th { color: rgba(255,255,255,.85); padding: 8px 10px; text-align: left;
+  font-family: 'IBM Plex Mono', monospace; font-size: .66rem; letter-spacing: .05em; }
+tbody tr:nth-child(odd) { background: var(--bg); }
+tbody tr:nth-child(even) { background: var(--card); }
+td { padding: 7px 10px; color: var(--ink2); border-bottom: 1px solid var(--line); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+
+/* Step flow */
+.steps { counter-reset: step; margin: 10px 0; }
+.step {
+  display: flex; gap: 11px; padding: 8px 0;
+  border-bottom: 1px dashed var(--line); counter-increment: step;
+}
+.step:last-child { border-bottom: none; }
+.step-n {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--acc); color: #fff;
+  font-family: 'IBM Plex Mono', monospace; font-size: .68rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; margin-top: 2px;
+}
+.step::before { content: counter(step); /* handled by .step-n */ }
+.step-txt { font-size: .86rem; color: var(--ink2); line-height: 1.5; }
+.step-txt strong { color: var(--ink); }
+
+/* Highlight pill */
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--acc3); color: var(--acc); border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace; font-size: .7rem; font-weight: 500;
+  padding: 2px 8px; margin: 2px 2px 2px 0;
+}
+
+/* Section heading inside body */
+.sub-h {
+  font-family: 'IBM Plex Serif', serif;
+  font-size: .95rem; font-weight: 600; color: var(--acc);
+  margin: 14px 0 7px; padding-bottom: 4px;
+  border-bottom: 1px solid var(--acc3);
+}
+.sub-h:first-child { margin-top: 0; }
+
+/* Divider */
+.sep { height: 1px; background: var(--line); margin: 12px 0; }
+
+/* Back to top */
+#backtop {
+  position: fixed; bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px); right: 14px;
+  z-index: 150; width: 36px; height: 36px; border-radius: 50%;
+  background: var(--ink); color: rgba(255,255,255,.7); font-size: .85rem;
+  border: 1px solid rgba(255,255,255,.12);
+  display: none; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 3px 12px rgba(0,0,0,.35);
+  -webkit-tap-highlight-color: transparent;
+}
+#backtop.show { display: flex; }
+
+/* ── TOPIC INDEX ─────────────────────────────────────────── */
+#topic-idx {
+  padding: 14px 12px;
+}
+.idx-header {
+  text-align: center;
+  padding: 20px 16px 14px;
+  background: var(--ink);
+  margin-bottom: 12px;
+}
+.idx-header h2 {
+  font-family: 'IBM Plex Serif', serif; font-size: 1.3rem; color: #fff; font-weight: 600;
+}
+.idx-header p { font-size: .78rem; color: rgba(255,255,255,.4); margin-top: 4px; }
+.idx-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: 13px 14px; margin-bottom: 8px;
+  cursor: pointer; transition: border-color .15s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+}
+.idx-card:active { border-color: var(--acc2); box-shadow: 0 2px 10px rgba(42,74,127,.15); }
+.idx-ic {
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: var(--acc3); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+}
+.idx-info { flex: 1; }
+.idx-name { font-size: .9rem; font-weight: 600; color: var(--ink); line-height: 1.2; }
+.idx-bib  { font-size: .7rem; color: var(--ink3); margin-top: 2px; font-style: italic; }
+.idx-arrow { color: var(--line); font-size: .85rem; flex-shrink: 0; }
+
+@media (min-width: 600px) {
+  body { max-width: 480px; margin: 0 auto; }
+  #tab-nav { max-width: 480px; left: 50%; transform: translateX(-50%); }
+  #backtop { right: calc(50% - 226px); }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="hdr">
+  <div>
+    <div id="hdr-title">CP-T/2026 · Ed. Física</div>
+    <div id="hdr-topic">Índice Geral</div>
+  </div>
+  <button id="search-btn" onclick="openSearch()" aria-label="Buscar">🔍</button>
+</header>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay">
+  <div id="search-box">
+    <input id="search-input" type="search" placeholder="Buscar conceito, termo..." autocomplete="off" oninput="doSearch(this.value)">
+    <button id="search-close" onclick="closeSearch()">✕ fechar</button>
+  </div>
+  <div id="search-results"><p class="sr-empty">Digite para buscar...</p></div>
+</div>
+
+<!-- PANELS (populated by JS) -->
+<div id="p-index" class="panel active"></div>
+<div id="p-1"  class="panel"></div>
+<div id="p-2"  class="panel"></div>
+<div id="p-3"  class="panel"></div>
+<div id="p-4"  class="panel"></div>
+<div id="p-5"  class="panel"></div>
+<div id="p-6"  class="panel"></div>
+<div id="p-7"  class="panel"></div>
+<div id="p-8"  class="panel"></div>
+<div id="p-9"  class="panel"></div>
+
+<!-- BOTTOM NAV -->
+<nav id="tab-nav">
+  <button class="tab-btn active" onclick="goTab('index',this)">
+    <span class="tab-ic">📋</span><span class="tab-lbl">Índice</span>
+  </button>
+  <button class="tab-btn" onclick="goTab('1',this)">
+    <span class="tab-ic">🦴</span><span class="tab-lbl">Anatomia</span>
+  </button>
+  <button class="tab-btn" onclick="goTab('2',this)">
+    <span class="tab-ic">📈</span><span class="tab-lbl">ACSM</span>
+  </button>
+  <button class="tab-btn" onclick="goTab('3',this)">
+    <span class="tab-ic">⚡</span><span class="tab-lbl">Fisiologia</span>
+  </button>
+  <button class="tab-btn" onclick="goTab('4',this)">
+    <span class="tab-ic">🩹</span><span class="tab-lbl">P.Socorros</span>
+  </button>
+  <button class="tab-btn" onclick="goTab('5',this)">
+    <span class="tab-ic">🏋️</span><span class="tab-lbl">Tr.Força</span>
+  </button>
+  <button class="tab-btn" onclick="goTab('6',this)">
+    <span class="tab-ic">📐</span><span class="tab-lbl">Biomec.</span>
+  </button>
+  <button class="tab-btn" onclick="goTab('7',this)">
+    <span class="tab-ic">🔄</span><span class="tab-lbl">Tr.Func.</span>
+  </button>
+  <button class="tab-btn" onclick="goTab('8',this)">
+    <span class="tab-ic">🏊</span><span class="tab-lbl">Natação</span>
+  </button>
+  <button class="tab-btn" onclick="goTab('9',this)">
+    <span class="tab-ic">🏃</span><span class="tab-lbl">Corrida</span>
+  </button>
+</nav>
+
+<button id="backtop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// content.js — Conteúdo consolidado para estudo
+// Educação Física · CP-T/2026 · EMGEPRON/SELECON
+// Baseado na bibliografia oficial do edital
+
+const CONTENT = [
+
+// ══════════════════════════════════════════════════════════
+// 1 · ANATOMIA HUMANA
+// Tortora & Derrickson, Princípios de Anatomia e Fisiologia, 14.ª ed.
+// ══════════════════════════════════════════════════════════
+{
+  id: '1', icon: '🦴',
+  name: 'Anatomia Humana',
+  bib: 'Tortora & Derrickson — Princípios de Anatomia e Fisiologia, 14.ª ed.',
+  tags: ['Esqueleto','Articulações','Músculo','SNC/SNP','Cardiovascular','Respiratório'],
+  sections: [
+    {
+      title: 'Introdução ao corpo humano — terminologia e planos',
+      body: `
+<div class="sub-h">Níveis de organização</div>
+<p class="prose">Químico → Celular → Tecidual → Orgânico → Sistêmico → Organismo.</p>
+<div class="callout c-def">
+  <span class="c-label">Definição</span>
+  Homeostasia: capacidade do organismo de manter o ambiente interno relativamente estável, por mecanismos de feedback negativo (predominante) e positivo.
+</div>
+<div class="sub-h">Planos anatômicos</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Plano</th><th>Divisão</th><th>Movimentos no plano</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sagital</strong></td><td>Direita / Esquerda</td><td>Flexão, extensão</td></tr>
+    <tr><td><strong>Frontal (coronal)</strong></td><td>Anterior / Posterior</td><td>Abdução, adução</td></tr>
+    <tr><td><strong>Transversal</strong></td><td>Superior / Inferior</td><td>Rotação, pronação, supinação</td></tr>
+  </tbody>
+</table></div>
+<div class="callout c-hl">
+  <span class="c-label">Posição anatômica</span>
+  Ereta, face anterior, membros superiores ao lado do tronco com palmas para frente (supinadas), pés paralelos.
+</div>`
+    },
+    {
+      title: 'Tecido ósseo e sistema esquelético',
+      body: `
+<div class="sub-h">Classificação dos ossos</div>
+<ul class="kc-list">
+  <li><strong>Longos</strong> — diáfise + 2 epífises (ex.: fêmur, úmero). Cavidade medular com medula amarela (lipídica) no adulto.</li>
+  <li><strong>Curtos</strong> — dimensões similares (ex.: carpo, tarso). Preenchidos por osso esponjoso.</li>
+  <li><strong>Planos</strong> — proteção e inserção muscular (ex.: escápula, esterno, ossos do crânio).</li>
+  <li><strong>Irregulares</strong> — vértebras, osso coxal.</li>
+  <li><strong>Sesamoides</strong> — patela; inserida em tendão.</li>
+</ul>
+<div class="sub-h">Ossificação e remodelação</div>
+<p class="prose"><strong>Osteoblastos</strong>: formação; <strong>Osteoclastos</strong>: reabsorção; <strong>Osteócitos</strong>: manutenção. Cálcio e PTH regulam esse equilíbrio. O exercício de impacto estimula a deposição óssea.</p>
+<div class="sub-h">Esqueleto axial (80 ossos)</div>
+<ul class="kc-list">
+  <li>Crânio: 22 ossos (8 cranianos + 14 faciais)</li>
+  <li>Coluna: 26 ossos (7C + 12T + 5L + sacro + cóccix)</li>
+  <li>Caixa torácica: 25 ossos (12 pares de costelas + esterno)</li>
+</ul>
+<div class="sub-h">Esqueleto apendicular (126 ossos)</div>
+<ul class="kc-list">
+  <li>Cintura escapular: clavícula + escápula (×2)</li>
+  <li>MMSS: úmero, rádio, ulna, 8 carpos, 5 metacarpos, 14 falanges (×2)</li>
+  <li>Cintura pélvica: osso do quadril (ilíaco + ísquio + púbis) (×2)</li>
+  <li>MMII: fêmur, tíbia, fíbula, 7 tarsos, 5 metatarsos, 14 falanges (×2) + patela (×2)</li>
+</ul>`
+    },
+    {
+      title: 'Articulações',
+      body: `
+<div class="callout c-def">
+  <span class="c-label">Classificação funcional</span>
+  <strong>Sinartroses</strong> (imóveis) → Anfiartroses (semimóveis) → <strong>Diartroses</strong> (sinoviais, móveis)
+</div>
+<div class="sub-h">Tipos de diartroses (sinoviais)</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Tipo</th><th>Movimento</th><th>Exemplo</th></tr></thead>
+  <tbody>
+    <tr><td>Gínglimo (dobradiça)</td><td>Flexão/extensão</td><td>Cotovelo, joelho</td></tr>
+    <tr><td>Trocóide (pivô)</td><td>Rotação</td><td>Rádio-ulnar proximal, atlas-áxis</td></tr>
+    <tr><td>Condiloide</td><td>Biaxial (sem rotação)</td><td>Radiocarpal</td></tr>
+    <tr><td>Selar</td><td>Biaxial + oposição</td><td>Carpometacarpal do polegar</td></tr>
+    <tr><td>Plana (deslizante)</td><td>Deslizamento</td><td>Intercarpal, intertarsal</td></tr>
+    <tr><td><strong>Enartrode</strong> (esféroide)</td><td>Triaxial + circundução</td><td>Glenoumeral, coxofemoral</td></tr>
+  </tbody>
+</table></div>
+<div class="callout c-warn">
+  <span class="c-label">Estruturas intra-articulares</span>
+  Meniscos (fibrocartilagem): distribuem pressão. Ligamentos: estabilidade passiva. Bursas: reduzem atrito. Fluido sinovial: lubrificação e nutrição da cartilagem.
+</div>`
+    },
+    {
+      title: 'Sistema muscular — estrutura e contração',
+      body: `
+<div class="sub-h">Hierarquia estrutural</div>
+<ul class="kc-list">
+  <li>Fibra muscular → Miofibrila → <strong>Sarcômero</strong> (unidade contrátil, Z–Z)</li>
+  <li>Filamentos <strong>finos</strong> (actina + troponina + tropomiosina) e <strong>grossos</strong> (miosina)</li>
+  <li>Bandas: A (actina+miosina), I (só actina), H (só miosina), Zona M (centro)</li>
+</ul>
+<div class="sub-h">Ciclo de pontes cruzadas (mecanismo deslizante)</div>
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-txt">Potencial de ação → liberação de <strong>Ca²⁺</strong> do retículo sarcoplasmático</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-txt">Ca²⁺ liga-se à <strong>troponina</strong> → desloca tropomiosina → expõe sítios ativos da actina</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-txt">Cabeça de miosina (com ATP) liga-se à actina → formação de ponte cruzada</div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-txt">Hidrólise do ATP → movimento de força → deslizamento dos filamentos</div></div>
+  <div class="step"><div class="step-n">5</div><div class="step-txt">Novo ATP → desprendimento; ciclo recomeça enquanto houver Ca²⁺ e ATP</div></div>
+</div>
+<div class="sub-h">Tipos de fibras musculares</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Propriedade</th><th>Tipo I (lenta)</th><th>Tipo IIa</th><th>Tipo IIx</th></tr></thead>
+  <tbody>
+    <tr><td>Velocidade</td><td>Lenta</td><td>Rápida</td><td>Muito rápida</td></tr>
+    <tr><td>Fadiga</td><td>Resistente</td><td>Intermediária</td><td>Rápida</td></tr>
+    <tr><td>Via energética</td><td>Oxidativa</td><td>Oxidat./glicol.</td><td>Glicolítica</td></tr>
+    <tr><td>Mitocôndrias</td><td>↑↑</td><td>↑</td><td>↓</td></tr>
+    <tr><td>Mioglobina</td><td>Alta (vermelha)</td><td>Moderada</td><td>Baixa (branca)</td></tr>
+    <tr><td>Uso predominante</td><td>Endurance</td><td>Esportes mistos</td><td>Potência/sprint</td></tr>
+  </tbody>
+</table></div>`
+    },
+    {
+      title: 'Sistema nervoso — estrutura e controle do movimento',
+      body: `
+<div class="sub-h">Divisões</div>
+<ul class="kc-list">
+  <li><strong>SNC</strong>: encéfalo (cérebro, cerebelo, tronco encefálico) + medula espinal</li>
+  <li><strong>SNP</strong>: somático (voluntário) + autônomo (simpático / parassimpático)</li>
+</ul>
+<div class="sub-h">Encéfalo — funções relevantes para o exercício</div>
+<ul class="kc-list">
+  <li><strong>Cerebelo</strong>: coordenação motora, equilíbrio, ajuste fino do movimento</li>
+  <li><strong>Gânglios basais</strong>: iniciação e controle de movimentos automáticos</li>
+  <li><strong>Córtex motor</strong>: planejamento e execução voluntária</li>
+  <li><strong>Hipotálamo</strong>: termorregulação, resposta hormonal, controle autonômico</li>
+</ul>
+<div class="sub-h">Medula espinal</div>
+<p class="prose">Estende-se do bulbo até L1-L2 (cone medular). Contém <strong>31 pares de nervos espinais</strong> (8C, 12T, 5L, 5S, 1Co). Reflexos medulares são processados sem via cortical (arco reflexo).</p>
+<div class="callout c-def">
+  <span class="c-label">Unidade Motora</span>
+  1 motoneurônio alfa + todas as fibras musculares que inerva. Princípio do Tamanho de Henneman: UM pequenas (tipo I) são recrutadas primeiro; UM grandes (tipo II) com maior intensidade.
+</div>
+<div class="sub-h">Sistema nervoso autônomo</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th></th><th>Simpático</th><th>Parassimpático</th></tr></thead>
+  <tbody>
+    <tr><td>Neurotransmissor</td><td>Noradrenalina (pós-gangl.)</td><td>Acetilcolina</td></tr>
+    <tr><td>Resposta ao exercício</td><td>↑FC, ↑PA, vasodilatação muscular, broncodilatação</td><td>Predomina no repouso</td></tr>
+    <tr><td>Glândulas adrenais</td><td>Adrenalina + noradrenalina</td><td>—</td></tr>
+  </tbody>
+</table></div>`
+    },
+    {
+      title: 'Sistema cardiovascular',
+      body: `
+<div class="sub-h">O coração</div>
+<ul class="kc-list">
+  <li>4 câmaras: 2 átrios (bomba de enchimento) + 2 ventrículos (bomba de propulsão)</li>
+  <li>Valvas AV: <strong>mitral</strong> (AE→VE) e <strong>tricúspide</strong> (AD→VD)</li>
+  <li>Valvas semilunares: <strong>aórtica</strong> (VE→aorta) e <strong>pulmonar</strong> (VD→a.pulmonar)</li>
+  <li>Nó SA → Nó AV → Feixe de His → Fibras de Purkinje (sistema de condução)</li>
+</ul>
+<div class="formula">
+  <span class="fl">Débito Cardíaco</span>
+  DC = <span class="fv">VS × FC</span>
+  <br>Repouso: ~5 L/min · Exercício máximo atleta: ~20-25 L/min
+</div>
+<div class="sub-h">Vasos sanguíneos</div>
+<ul class="kc-list">
+  <li><strong>Artérias</strong>: alta pressão, parede elástica musculosa</li>
+  <li><strong>Capilares</strong>: local de troca (O₂, CO₂, nutrientes, metabólitos)</li>
+  <li><strong>Veias</strong>: baixa pressão, reservatório de volume, válvulas semilunares</li>
+</ul>
+<div class="callout c-ok">
+  <span class="c-label">Hemodinâmica</span>
+  PA = DC × RPV. Exercício aeróbio: PA sistólica ↑ progressivamente, diastólica estável ou ↓ (vasodilatação muscular reduz RPV).
+</div>`
+    },
+    {
+      title: 'Sistema respiratório e trocas gasosas',
+      body: `
+<div class="sub-h">Estrutura</div>
+<p class="prose">Vias aéreas: cavidade nasal → faringe → laringe → traqueia → brônquios → bronquíolos → <strong>alvéolos</strong> (local de hematose).</p>
+<div class="sub-h">Mecânica respiratória</div>
+<ul class="kc-list">
+  <li>Inspiração: <strong>diafragma</strong> contrai (desce), intercostais externos contraem → volume torácico ↑ → pressão intrapleural ↓ → ar entra</li>
+  <li>Expiração passiva: músculos relaxam → retorno elástico</li>
+  <li>Expiração forçada: intercostais internos + músculos abdominais</li>
+</ul>
+<div class="formula">
+  <span class="fl">Equação de difusão de Fick</span>
+  V̇gas ∝ <span class="fv">A × D × (P1 − P2) / T</span>
+  <br>A = área; D = difusibilidade; ΔP = gradiente; T = espessura
+</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Gás</th><th>PaO₂ alveolar</th><th>PaO₂ capilar pulmonar</th><th>Resultado</th></tr></thead>
+  <tbody>
+    <tr><td>O₂</td><td>104 mmHg</td><td>40 mmHg</td><td>Difunde para sangue</td></tr>
+    <tr><td>CO₂</td><td>40 mmHg</td><td>45 mmHg</td><td>Difunde para alvéolo</td></tr>
+  </tbody>
+</table></div>
+<div class="callout c-hl">
+  <span class="c-label">Volume Corrente vs. Frequência</span>
+  Em exercício: VE aumenta pelo aumento do Volume Corrente (primário) e da Frequência Respiratória. Atletas treinados respondem mais pelo VC; sedentários pela FR.
+</div>`
+    },
+    {
+      title: 'Sistema endócrino — principais hormônios no exercício',
+      body: `
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Hormônio</th><th>Origem</th><th>Efeito no exercício</th></tr></thead>
+  <tbody>
+    <tr><td>Adrenalina / Noradrenalina</td><td>Medula adrenal</td><td>↑FC, ↑PA, glicogenólise, lipólise</td></tr>
+    <tr><td>Cortisol</td><td>Córtex adrenal</td><td>Gluconeogênese, lipólise, imunossupressão crônica</td></tr>
+    <tr><td>GH</td><td>Hipófise anterior</td><td>↑síntese proteica, lipólise, pico no sono/exercício</td></tr>
+    <tr><td>Insulina</td><td>Pâncreas (β)</td><td>↓exercício: captação muscular de glicose GLUT-4</td></tr>
+    <tr><td>Glucagon</td><td>Pâncreas (α)</td><td>↑glicogenólise hepática quando glicemia cai</td></tr>
+    <tr><td>Testosterona</td><td>Gônadas / adrenal</td><td>Anabolismo proteico; maior em homens</td></tr>
+    <tr><td>IGF-1</td><td>Fígado/músculo</td><td>Mediador do GH; hipertrofia muscular</td></tr>
+  </tbody>
+</table></div>
+<div class="callout c-def">
+  <span class="c-label">Eixo hipotálamo-hipófise-adrenal</span>
+  Exercício intenso → CRH (hipotálamo) → ACTH (hipófise) → Cortisol (adrenal). Cronicamente elevado no overtraining.
+</div>`
+    },
+    {
+      title: 'Sistemas urinário, linfático e digestório — resumo funcional',
+      body: `
+<div class="sub-h">Sistema urinário</div>
+<p class="prose">Rins (2) → Ureteres → Bexiga → Uretra. Nefrônio = corpúsculo renal + túbulo contorcido proximal + alça de Henle + túbulo distal + ducto coletor. Funções: filtração, reabsorção, secreção, excreção. Durante exercício intenso: fluxo renal ↓ (vasoconstrição), podendo causar proteinúria transitória.</p>
+<div class="sub-h">Sistema linfático</div>
+<ul class="kc-list">
+  <li>Capilar linfático → vasos linfáticos → ductos (linfático e torácico) → retornam à circulação venosa</li>
+  <li>Órgãos linfáticos: baço, timo, linfonodos, amígdalas, MALT</li>
+  <li>No exercício: ↑fluxo linfático drena o edema intersticial por acúmulo de filtração capilar</li>
+</ul>
+<div class="sub-h">Sistema digestório — nutrição para o exercício</div>
+<ul class="kc-list">
+  <li>Boca: amilase salivar → inicia digestão de amido</li>
+  <li>Estômago: esvaziamento ↓ no exercício intenso (importante para estratégias nutricionais)</li>
+  <li>Intestino delgado: absorsão de glicose (SGLT-1/GLUT-5), aminoácidos, lipídios (quilomícrons)</li>
+  <li>Fígado: glicogenólise, gluconeogênese, síntese de proteínas plasmáticas</li>
+</ul>`
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════
+// 2 · DIRETRIZES DO ACSM
+// ACSM, Diretrizes para Testes de Esforço e Prescrição, 11.ª ed., 2023
+// ══════════════════════════════════════════════════════════
+{
+  id: '2', icon: '📈',
+  name: 'Diretrizes do ACSM',
+  bib: 'ACSM — Diretrizes para Testes de Esforço e sua Prescrição, 11.ª ed. (2023)',
+  tags: ['FITT-VP','Triagem','Testes','Populações','Doenças Crônicas'],
+  sections: [
+    {
+      title: 'Benefícios, riscos e triagem pré-exercício',
+      body: `
+<div class="callout c-ok">
+  <span class="c-label">Benefícios do exercício regular (dose-resposta)</span>
+  ↓ risco DCV, DM2, obesidade, alguns cânceres; ↑ densidade óssea, composição corporal, saúde mental (ansiedade/depressão); maior longevidade.
+</div>
+<div class="sub-h">Triagem pré-exercício — Etapas</div>
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-txt"><strong>PAR-Q+ / AHA pre-exercise screen</strong>: autoaplicável, identifica sintomas e diagnósticos relevantes</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-txt"><strong>Estratificação de risco</strong>: baixo / moderado / alto (número de fatores de risco DCV)</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-txt"><strong>Encaminhamento médico</strong> quando necessário antes de exercício vigoroso</div></div>
+</div>
+<div class="sub-h">Fatores de risco cardiovascular</div>
+<ul class="kc-list">
+  <li>Idade (♂ ≥45a; ♀ ≥55a)</li>
+  <li>Histórico familiar de DCV prematura</li>
+  <li>Tabagismo (atual ou últimos 6 meses)</li>
+  <li>Sedentarismo (&lt;150 min/sem AF moderada)</li>
+  <li>Obesidade (IMC ≥30 ou CC ♂ &gt;102 cm / ♀ &gt;88 cm)</li>
+  <li>Hipertensão arterial (≥130/80 mmHg ou medicado)</li>
+  <li>Dislipidemia (LDL≥130 ou HDL&lt;40; ou medicado)</li>
+  <li>Pré-diabetes (glicemia jejum 100-125 mg/dL)</li>
+</ul>
+<div class="callout c-hl">
+  <span class="c-label">Fator protetor</span>
+  HDL ≥60 mg/dL remove 1 fator de risco da contagem.
+</div>`
+    },
+    {
+      title: 'Testes de aptidão física — protocolos e interpretação',
+      body: `
+<div class="sub-h">Componentes da aptidão física relacionada à saúde</div>
+<ul class="kc-list">
+  <li>Capacidade cardiorrespiratória (VO₂máx)</li>
+  <li>Força / resistência muscular</li>
+  <li>Flexibilidade</li>
+  <li>Composição corporal</li>
+  <li>Aptidão neuromotora (equilíbrio, coordenação)</li>
+</ul>
+<div class="sub-h">Testes de campo — aptidão cardiorrespiratória</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Teste</th><th>Descrição</th><th>Uso</th></tr></thead>
+  <tbody>
+    <tr><td>Cooper 12 min</td><td>Distância máxima em 12 min</td><td>Adultos jovens saudáveis</td></tr>
+    <tr><td>Caminhada de 6 min (TC6)</td><td>Distância percorrida em 6 min</td><td>Idosos, populações clínicas</td></tr>
+    <tr><td>Step test de 3 min</td><td>FC de recuperação 1 min após step</td><td>Triagem rápida</td></tr>
+    <tr><td>Rockport (1 milha)</td><td>Tempo + FC pós-caminhada de 1 milha</td><td>Sedentários</td></tr>
+  </tbody>
+</table></div>
+<div class="sub-h">Composição corporal</div>
+<ul class="kc-list">
+  <li><strong>Dobras cutâneas</strong> (skinfolds): equações Jackson-Pollock ou Durnin-Womersley → %G via Siri/Brozek</li>
+  <li><strong>IMC</strong> = massa(kg)/estatura²(m) — limitado por não distinguir massa magra de gordura</li>
+  <li><strong>DXA</strong> (Densitometria): padrão-ouro laboratorial</li>
+  <li><strong>Bioimpedância (BIA)</strong>: prática; afetada por hidratação</li>
+</ul>
+<div class="callout c-def">
+  <span class="c-label">Escala de Borg (RPE 6-20)</span>
+  6 = repouso; 11-12 = leve; 13-14 = moderado; 15-16 = vigoroso; 17-18 = muito vigoroso; 20 = máximo. Correlaciona-se com FC (RPE × 10 ≈ FC).
+</div>`
+    },
+    {
+      title: 'Princípio FITT-VP e prescrição de exercício',
+      body: `
+<div class="formula">
+  <span class="fl">Componentes da Prescrição</span>
+  <span class="fv">F</span>requência · <span class="fv">I</span>ntensidade · <span class="fv">T</span>empo · <span class="fv">T</span>ipo · <span class="fv">V</span>olume · <span class="fv">P</span>rogressão
+</div>
+<div class="sub-h">Intensidade do exercício aeróbio</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Classificação</th><th>% FCR / VO₂R</th><th>% FCmáx</th><th>RPE</th></tr></thead>
+  <tbody>
+    <tr><td>Muito leve</td><td>&lt;30%</td><td>&lt;57%</td><td>&lt;10</td></tr>
+    <tr><td>Leve</td><td>30–39%</td><td>57–63%</td><td>10–11</td></tr>
+    <tr><td><strong>Moderada</strong></td><td><strong>40–59%</strong></td><td><strong>64–76%</strong></td><td><strong>12–13</strong></td></tr>
+    <tr><td><strong>Vigorosa</strong></td><td><strong>60–89%</strong></td><td><strong>77–95%</strong></td><td><strong>14–17</strong></td></tr>
+    <tr><td>Máxima</td><td>≥90%</td><td>≥96%</td><td>≥18</td></tr>
+  </tbody>
+</table></div>
+<div class="formula">
+  <span class="fl">Método de Karvonen — FC de treino</span>
+  FC<sub>treino</sub> = FC<sub>rep</sub> + %<span class="fv">FCR</span> × (FC<sub>máx</sub> − FC<sub>rep</sub>)
+  <br><span style="font-size:.75rem;color:rgba(255,255,255,.5)">FCR = Frequência Cardíaca de Reserva</span>
+</div>
+<div class="callout c-ok">
+  <span class="c-label">Recomendação ACSM adultos saudáveis (aeróbio)</span>
+  ≥150 min/sem de intensidade moderada OU ≥75 min/sem de vigorosa (ou combinação equivalente), em sessões ≥10 min, preferencialmente ≥5 dias/sem.
+</div>
+<div class="callout c-def">
+  <span class="c-label">Recomendação Resistido</span>
+  2-3×/sem; 2-4 séries; 8-12 repetições (novato: 60-70% 1RM; avançado: ≥80%); 48-72h de recuperação por grupo muscular.
+</div>`
+    },
+    {
+      title: 'Teste ergométrico máximo — protocolos e critérios',
+      body: `
+<div class="sub-h">Indicações do teste de esforço</div>
+<ul class="kc-list">
+  <li>Diagnóstico de doença coronariana (isquemia induzida por esforço)</li>
+  <li>Avaliação de capacidade funcional pré-operatória</li>
+  <li>Prescrição de exercício para populações de risco</li>
+  <li>Avaliação de resposta ao tratamento (IAM, ICC)</li>
+</ul>
+<div class="sub-h">Protocolos mais usados</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Protocolo</th><th>Equipamento</th><th>Progressão</th></tr></thead>
+  <tbody>
+    <tr><td>Bruce (modificado)</td><td>Esteira</td><td>3 min/estágio; inclinação + velocidade</td></tr>
+    <tr><td>Balke</td><td>Esteira</td><td>1 min/estágio; velocidade fixa, ↑inclinação</td></tr>
+    <tr><td>Ramp</td><td>Cicloergômetro/esteira</td><td>Incremento contínuo e gradual</td></tr>
+  </tbody>
+</table></div>
+<div class="callout c-warn">
+  <span class="c-label">Critérios absolutos de interrupção (ACSM)</span>
+  Queda de PAS &gt;10 mmHg com ↑carga + sinais de isquemia · Angina moderada a grave · Sinais neurológicos (ataxia, vertigem) · Cianose/palidez severa · Taquicardia ventricular sustentada · Solicitação do paciente · Falha técnica do equipamento
+</div>
+<div class="callout c-def">
+  <span class="c-label">Critérios de teste máximo</span>
+  VO₂ plateau (&lt;150 mL/min com ↑carga) · QR ≥1.10 · FC ≥ FCmáx prevista · Exaustão voluntária · RPE ≥17-18
+</div>`
+    },
+    {
+      title: 'Prescrição para populações especiais e doenças crônicas',
+      body: `
+<div class="sub-h">Hipertensão arterial</div>
+<div class="callout c-ok">
+  Aeróbio: 5-7×/sem, intensidade moderada (40-59% FCR). Resistido: moderado; evitar manobra de Valsalva. Não exercitar se PA repouso &gt;180/110. Antihipertensivos (β-bloqueadores) alteram a resposta de FC — usar RPE como guia.
+</div>
+<div class="sub-h">Diabetes Mellitus tipo 2</div>
+<ul class="kc-list">
+  <li>Aeróbio: ≥150 min/sem moderado-vigoroso; máximo 2 dias consecutivos sem treino</li>
+  <li>Resistido: 2-3×/sem (↑sensibilidade insulínica por 24-72h)</li>
+  <li>Monitorar glicemia: hipoglicemia &lt;100 mg/dL → adiar exercício</li>
+  <li>Risco de hipoglicemia pós-exercício (até 12-24h depois)</li>
+</ul>
+<div class="sub-h">Obesidade</div>
+<ul class="kc-list">
+  <li>Objetivo inicial: 150-200 min/sem; progressão gradual para 250-300 min/sem</li>
+  <li>Exercícios de baixo impacto (piscina, bicicleta) para proteger articulações</li>
+</ul>
+<div class="sub-h">Idosos (≥65 anos)</div>
+<ul class="kc-list">
+  <li>Recomendações idênticas a adultos, com ênfase em neuromotor (equilíbrio, flexibilidade, agilidade)</li>
+  <li>Treinamento resistido: especialmente importante para prevenir sarcopenia e quedas</li>
+</ul>
+<div class="sub-h">Gestantes (sem contraindicações)</div>
+<ul class="kc-list">
+  <li>≥150 min/sem de moderada intensidade; aeróbio + fortalecimento</li>
+  <li>Evitar decúbito dorsal após 1º trimestre, mergulho, esportes de impacto/contato</li>
+  <li>Sinais de parada: sangramento, falta de ar excessiva, dor torácica, tontura</li>
+</ul>
+<div class="sub-h">Doenças cardiovasculares</div>
+<ul class="kc-list">
+  <li>Reabilitação cardíaca (fase I-IV): supervisão médica, monitoramento ECG</li>
+  <li>Iniciar com intensidade leve (40-50% FCR), progressão cautelosa</li>
+  <li>Capacidade funcional ≥3-4 METs antes de exercício não supervisionado</li>
+</ul>`
+    },
+    {
+      title: 'Ambiente, comportamento e adesão ao exercício',
+      body: `
+<div class="sub-h">Exercício em calor</div>
+<ul class="kc-list">
+  <li>Aclimatação: 10-14 dias para adaptações cardiovasculares e de sudorese</li>
+  <li>Hidratação: 400-600 mL antes; 150-250 mL a cada 15-20 min; repor eletrólitos em &gt;60 min</li>
+  <li><strong>Exaustão pelo calor</strong>: TC &lt;40°C, sudorese intensa, fraqueza, taquicardia → resfriar e hidratar</li>
+  <li><strong>Golpe de calor</strong>: TC &gt;40°C + disfunção SNC → emergência — imersão em água gelada</li>
+</ul>
+<div class="sub-h">Exercício em altitude (acima de 1.500 m)</div>
+<ul class="kc-list">
+  <li>PO₂ alveolar ↓ → SpO₂ ↓ → VO₂máx ↓ (~1% por 100 m acima de 1500 m)</li>
+  <li>Aclimatação: ↑FR, ↑eritropoietina → ↑eritrócitos (após dias/semanas)</li>
+</ul>
+<div class="sub-h">Estratégias comportamentais — Teorias</div>
+<ul class="kc-list">
+  <li><strong>Transtheoretical Model (TTM)</strong>: Pré-contemplação → Contemplação → Preparação → Ação → Manutenção</li>
+  <li><strong>Teoria da Autodeterminação</strong>: motivação intrínseca &gt; extrínseca para adesão a longo prazo</li>
+  <li><strong>Teoria Social Cognitiva</strong>: autoeficácia como preditor central do comportamento de exercício</li>
+</ul>`
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════
+// 3 · FISIOLOGIA DO EXERCÍCIO
+// Powers & Howley, 9.ª ed., Manole, 2017
+// ══════════════════════════════════════════════════════════
+{
+  id: '3', icon: '⚡',
+  name: 'Fisiologia do Exercício',
+  bib: 'Powers & Howley — Fisiologia do Exercício, 9.ª ed. (Manole, 2017)',
+  tags: ['Bioenergética','VO₂máx','Limiar','Cardiovascular','Hormônios','Adaptações'],
+  sections: [
+    {
+      title: 'Bioenergética — sistemas de produção de ATP',
+      body: `
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Sistema</th><th>Via</th><th>Duração</th><th>Substrato</th><th>O₂?</th></tr></thead>
+  <tbody>
+    <tr><td><strong>ATP-PCr</strong></td><td>Fosfagênio</td><td>0–10 s</td><td>Fosfocreatina</td><td>Não</td></tr>
+    <tr><td><strong>Glicolítico</strong></td><td>Glicólise anaeróbia</td><td>10–90 s</td><td>Glicogênio/glicose</td><td>Não</td></tr>
+    <tr><td><strong>Oxidativo</strong></td><td>Fosforilação oxidativa</td><td>&gt;2 min</td><td>CHO, lipídios, proteínas</td><td>Sim</td></tr>
+  </tbody>
+</table></div>
+<div class="callout c-def">
+  <span class="c-label">Rendimento de ATP</span>
+  1 glicose (aeróbio) → ~30-32 ATP · 1 glicose (anaeróbio) → 2 ATP + 2 lactato · 1 ácido palmítico (β-oxidação) → ~129 ATP
+</div>
+<div class="sub-h">Ciclo de Cori</div>
+<p class="prose">Lactato produzido no músculo → sangue → fígado → gliconeogênese → glicose → sangue → músculo. Importante durante exercício prolongado e recuperação.</p>
+<div class="sub-h">Contínuo bioenergético</div>
+<p class="prose">Os três sistemas atuam concomitantemente; o que muda é a <em>predominância</em> conforme intensidade e duração. Exercício de 60 s: ~70% anaeróbio / 30% aeróbio. Exercício de 3 min: ~50/50%.</p>`
+    },
+    {
+      title: 'VO₂máx, limiar anaeróbico e déficit de oxigênio',
+      body: `
+<div class="formula">
+  <span class="fl">Equação de Fick</span>
+  VO₂ = <span class="fv">DC × (CaO₂ − CvO₂)</span>
+  <br>= VS × FC × (a-vO₂ diff)
+  <br><span style="font-size:.72rem;color:rgba(255,255,255,.4)">VO₂máx limitado principalmente pelo DC máximo (coração central)</span>
+</div>
+<div class="callout c-def">
+  <span class="c-label">VO₂máx — valores de referência (mL·kg⁻¹·min⁻¹)</span>
+  Sedentário ♂: ~35-40 · Sedentário ♀: ~28-32 · Atleta de endurance ♂: 65-85 · Atleta de endurance ♀: 55-70
+</div>
+<div class="sub-h">Limiar de Lactato</div>
+<ul class="kc-list">
+  <li><strong>LV1 / LL1</strong>: início do aumento do lactato (~2 mmol/L); corresponde ao "talk test" e à zona aeróbia</li>
+  <li><strong>LV2 / MLSS (Estado Estável Máximo de Lactato)</strong>: ~4 mmol/L; limiar anaeróbio clássico; intensidade mais alta mantida em equilíbrio</li>
+  <li>Treinamento de endurance: desloca o limiar para ↑ % do VO₂máx</li>
+</ul>
+<div class="sub-h">Déficit de O₂ e EPOC</div>
+<ul class="kc-list">
+  <li><strong>Déficit de O₂</strong>: no início do exercício, VO₂ não sobe instantaneamente → fontes anaeróbias suprem a diferença</li>
+  <li><strong>EPOC</strong> (Excess Post-exercise O₂ Consumption): reposição de O₂ muscular, PCr, remoção de lactato, efeitos hormonais; maior após exercícios de alta intensidade e resistido</li>
+</ul>`
+    },
+    {
+      title: 'Respostas cardiovasculares e respiratórias ao exercício',
+      body: `
+<div class="sub-h">Respostas cardiovasculares agudas</div>
+<ul class="kc-list">
+  <li>FC ↑ (resposta antecipatória: SNS + retirada vagal); VS ↑ (maior retorno venoso, FE ↑)</li>
+  <li>DC ↑ (até 4-5× em exercício máximo)</li>
+  <li>Vasodilatação nos músculos ativos (metabólitos locais, óxido nítrico)</li>
+  <li>Vasoconstrição em vísceras, rins, pele (fria)</li>
+  <li>PA sistólica ↑; PA diastólica ≈ estável ou ↓ leve</li>
+</ul>
+<div class="sub-h">Respostas ventilatórias</div>
+<ul class="kc-list">
+  <li>VE ↑ progressivo; principalmente pelo aumento do Volume Corrente (primário) e FR</li>
+  <li>Ponto de compensação respiratória: acima do LV2, VE sobe desproporcional ao VO₂ (tamponamento do H⁺)</li>
+  <li>SpO₂ mantida até exercício muito intenso; pode cair (&lt;95%) em atletas de elite (EIAH)</li>
+</ul>
+<div class="sub-h">Termorregulação</div>
+<ul class="kc-list">
+  <li>Exercício gera ~75% de calor e ~25% de trabalho mecânico</li>
+  <li>Dissipação: sudorese (evaporação — principal em calor), vasodilatação cutânea (conveção/condução/radiação)</li>
+  <li>Deriva cardiovascular: desidratação progressiva → VS ↓ → FC↑ para manter DC</li>
+</ul>`
+    },
+    {
+      title: 'Adaptações ao treinamento de endurance',
+      body: `
+<div class="sub-h">Adaptações cardíacas (coração de atleta)</div>
+<ul class="kc-list">
+  <li>Hipertrofia excêntrica: câmaras dilatadas + parede espessada</li>
+  <li>Bradicardia de repouso (FC 40-50 bpm) por aumento do tônus vagal</li>
+  <li>↑ Volume sistólico de repouso e de exercício máximo</li>
+</ul>
+<div class="sub-h">Adaptações musculoesqueléticas</div>
+<ul class="kc-list">
+  <li>↑ Densidade mitocondrial (biogênese via PGC-1α ativado por AMPK e Ca²⁺)</li>
+  <li>↑ Capilarização muscular (↑ tempo de troca O₂)</li>
+  <li>↑ Estoques de glicogênio e lipídios intramusculares (IMTG)</li>
+  <li>↑ Mioglobina, ↑ enzimas oxidativas (citrato sintase, succinate desidrogenase)</li>
+</ul>
+<div class="sub-h">Adaptações metabólicas</div>
+<ul class="kc-list">
+  <li>Maior oxidação de lipídios em mesma intensidade absoluta (<em>poupança de glicogênio</em>)</li>
+  <li>Limiar de lactato em % maior do VO₂máx</li>
+  <li>Menor acúmulo de H⁺ e Pi para mesma carga → mais resistência à fadiga</li>
+</ul>
+<div class="callout c-ok">
+  <span class="c-label">Melhora do VO₂máx</span>
+  Treinados: +15-20% em sedentários após 3-6 meses. Muito treinados: limitada por fatores genéticos (trainability). Principal mecanismo: ↑ DC máximo.
+</div>`
+    },
+    {
+      title: 'Respostas hormonais, imune e fadiga',
+      body: `
+<div class="sub-h">Respostas hormonais ao exercício agudo</div>
+<ul class="kc-list">
+  <li><strong>Catecolaminas</strong> (adrenalina/noradrenalina): respondem mais rápido; ↑FC, mobilização de substratos</li>
+  <li><strong>GH</strong>: ↑ com intensidade; estímulo ao IGF-1, lipólise, síntese proteica</li>
+  <li><strong>Cortisol</strong>: gluconeogênese; elevado no overtraining crônico</li>
+  <li><strong>IL-6 muscular (miocina)</strong>: liberada pelo músculo durante exercício — efeito anti-inflamatório e modulação metabólica</li>
+</ul>
+<div class="sub-h">Exercício e sistema imune</div>
+<ul class="kc-list">
+  <li>Exercício moderado regular: ↑ imunidade inata e adaptativa</li>
+  <li>Exercício muito intenso/prolongado: "Janela aberta" — imunossupressão transitória pós-exercício (3-72h)</li>
+  <li>Overtraining crônico: marcadores inflamatórios elevados (PCR, IL-6), infecções frequentes</li>
+</ul>
+<div class="sub-h">Mecanismos de fadiga muscular</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Tipo</th><th>Mecanismo</th><th>Exercício predominante</th></tr></thead>
+  <tbody>
+    <tr><td>Fadiga periférica</td><td>↑H⁺, Pi, ADP; depleção de glicogênio/PCr</td><td>Alta intensidade / prolongado</td></tr>
+    <tr><td>Fadiga central</td><td>↑serotonina, ↓dopamina; alteração do "drive" cortical</td><td>Exercício prolongado</td></tr>
+    <tr><td>DOMS</td><td>Microlesões excêntricas; pico 24-48h pós</td><td>Exercício excêntrico não habitual</td></tr>
+  </tbody>
+</table></div>`
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════
+// 4 · PRIMEIROS SOCORROS
+// Flegel, Primeiros Socorros no Esporte, 5.ª ed., Manole, 2015
+// ══════════════════════════════════════════════════════════
+{
+  id: '4', icon: '🩹',
+  name: 'Primeiros Socorros',
+  bib: 'Flegel — Primeiros Socorros no Esporte, 5.ª ed. (Manole, 2015)',
+  tags: ['PRICE','SAMPLE','RCP','Emergências','Lesões','Clima'],
+  sections: [
+    {
+      title: 'Avaliação primária e estratégia de emergência',
+      body: `
+<div class="formula">
+  <span class="fl">Sequência PRIMARY SURVEY</span>
+  <span class="fv">D</span>anger → <span class="fv">R</span>esponse → <span class="fv">A</span>irway → <span class="fv">B</span>reathing → <span class="fv">C</span>irculation → <span class="fv">D</span>efibrillation
+</div>
+<div class="formula">
+  <span class="fl">Anamnese de emergência — SAMPLE</span>
+  <span class="fv">S</span>inais/sintomas · <span class="fv">A</span>lergias · <span class="fv">M</span>edicamentos · <span class="fv">P</span>assado médico · <span class="fv">L</span>ast meal (última refeição) · <span class="fv">E</span>ventos que levaram ao incidente
+</div>
+<div class="callout c-warn">
+  <span class="c-label">RCP adulto (AHA 2020)</span>
+  100-120 compressões/min · Profundidade: 5-6 cm · Permitir retorno torácico completo · Relação 30:2 (sem via aérea avançada) · DEA: usar o mais rápido possível (meta &lt;5 min)
+</div>
+<div class="callout c-def">
+  <span class="c-label">Cadeia da sobrevivência</span>
+  Reconhecimento → Acionamento do SAMU → RCP de qualidade → Desfibrilação precoce → Suporte avançado
+</div>`
+    },
+    {
+      title: 'Protocolo PRICE e lesões musculoesqueléticas',
+      body: `
+<div class="formula">
+  <span class="fl">PRICE — lesão aguda (primeiras 48-72h)</span>
+  <span class="fv">P</span>rotection · <span class="fv">R</span>est · <span class="fv">I</span>ce (15-20 min a cada 1-2h) · <span class="fv">C</span>ompression · <span class="fv">E</span>levation
+</div>
+<div class="sub-h">Graus de lesão muscular</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Grau</th><th>Lesão</th><th>Sinal clínico</th><th>Retorno</th></tr></thead>
+  <tbody>
+    <tr><td>I</td><td>Microrupturas (&lt;5% fibras)</td><td>Dor à palpação, força preservada</td><td>3-7 dias</td></tr>
+    <tr><td>II</td><td>Ruptura parcial</td><td>Dor moderada, equimose, ↓força parcial</td><td>2-6 semanas</td></tr>
+    <tr><td>III</td><td>Ruptura total</td><td>Perda funcional, hematoma extenso, "gap"</td><td>Cirurgia; meses</td></tr>
+  </tbody>
+</table></div>
+<div class="sub-h">Entorse de tornozelo</div>
+<ul class="kc-list">
+  <li>Mais comum: ligamento talofibular anterior (inversão)</li>
+  <li>Grau I: leve, sem instabilidade · Grau II: ruptura parcial · Grau III: ruptura total</li>
+  <li>Avaliação: teste da gaveta anterior (LTA), teste de inclinação talar (LCF)</li>
+</ul>
+<div class="sub-h">Síndrome compartimental aguda — 6 P's</div>
+<ul class="kc-list">
+  <li>Pain (dor desproporcional), Pressure (tensão), Paresthesia, Pallor, Paralysis, Pulselessness</li>
+  <li>Emergência cirúrgica: fasciotomia. Não elevar o membro acima do coração.</li>
+</ul>`
+    },
+    {
+      title: 'Lesões na coluna, cabeça e nervos',
+      body: `
+<div class="callout c-warn">
+  <span class="c-label">Suspeita de lesão cervical</span>
+  NÃO mover sem imobilização. Imobilizar em posição neutra. Log roll (mínimo 3-4 pessoas) para mover. Manter via aérea com tração em linha.
+</div>
+<div class="sub-h">Concussão cerebral</div>
+<ul class="kc-list">
+  <li>Sintomas: cefaleia, tontura, confusão, amnésia, fotofobia, náuseas</li>
+  <li>Protocolo return-to-play: 6 etapas graduais — repouso → atividade leve → esporte específico sem contato → treino de contato → jogo</li>
+  <li>Nunca retornar no mesmo dia se houver suspeita de concussão</li>
+</ul>
+<div class="sub-h">Sinal de Tinel</div>
+<p class="prose">Percussão sobre trajeto do nervo lesado → sensação de choque/formigamento no território desse nervo. Indica neuropraxia ou axonotmese.</p>`
+    },
+    {
+      title: 'Emergências médicas — calor, hipoglicemia, convulsão',
+      body: `
+<div class="sub-h">Emergências pelo calor</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Condição</th><th>TC central</th><th>SNC</th><th>Conduta</th></tr></thead>
+  <tbody>
+    <tr><td>Cãibras pelo calor</td><td>Normal</td><td>Normal</td><td>Hidrat. + eletrólitos + alongamento</td></tr>
+    <tr><td>Exaustão pelo calor</td><td>&lt;40°C</td><td>Normal</td><td>Sombra, resfriamento, hidratação oral/IV</td></tr>
+    <tr><td><strong>Golpe de calor</strong></td><td><strong>&gt;40°C</strong></td><td><strong>Disfunção</strong></td><td><strong>Imersão em água gelada — emergência</strong></td></tr>
+  </tbody>
+</table></div>
+<div class="sub-h">Hipoglicemia</div>
+<ul class="kc-list">
+  <li>Sintomas: tremores, sudorese fria, palidez, tontura, confusão</li>
+  <li>Consciente: 15g de CHO rápido (gel, suco) → aguardar 15 min → reavaliar</li>
+  <li>Inconsciente: NÃO oferecer nada oral → SAMU → glucagon IM (se disponível)</li>
+</ul>
+<div class="sub-h">Convulsão</div>
+<ul class="kc-list">
+  <li>NÃO imobilizar; NÃO introduzir objetos na boca</li>
+  <li>Proteger de traumas, afastar testemunhas, decúbito lateral de recuperação após</li>
+  <li>Acionar emergência se: 1ª crise, duração &gt;5 min, pós-traumática</li>
+</ul>
+<div class="sub-h">Fratura exposta</div>
+<ul class="kc-list">
+  <li>NÃO reduzir manualmente; cobrir com pano limpo/estéril</li>
+  <li>Imobilizar acima e abaixo da fratura; controlar hemorragia; transporte urgente</li>
+</ul>`
+    },
+    {
+      title: 'Remoção de atleta e primeiros socorros no esporte',
+      body: `
+<div class="sub-h">Log Roll (rolamento em bloco)</div>
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-txt">Socorrista A: controla cabeça e pescoço em linha neutra (comanda)</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-txt">Socorristas B, C (e D): posicionam-se ao longo do tronco e MMII</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-txt">Comando de A: girar em bloco (60-90°) para o decúbito lateral</div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-txt">Inserção da prancha espinal; rolamento para decúbito dorsal sobre a prancha</div></div>
+  <div class="step"><div class="step-n">5</div><div class="step-txt">Fixação e transporte</div></div>
+</div>
+<div class="callout c-def">
+  <span class="c-label">Equipamentos de proteção individual (EPI)</span>
+  Luvas descartáveis sempre que houver contato com sangue ou fluidos corporais. Máscara de RCP recomendada.
+</div>
+<div class="sub-h">Protocolos de ferimentos de pele</div>
+<ul class="kc-list">
+  <li>Abrasão: irrigar com solução salina/água limpa; remover debris; curativo úmido. <em>Não usar álcool puro</em> (citotóxico).</li>
+  <li>Laceração com hemorragia: pressão direta com curativo limpo; torniquete apenas como último recurso</li>
+</ul>`
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════
+// 5 · TREINAMENTO DE FORÇA
+// Fleck & Kraemer, 4.ª ed., Artmed, 2017
+// ══════════════════════════════════════════════════════════
+{
+  id: '5', icon: '🏋️',
+  name: 'Treinamento de Força',
+  bib: 'Fleck & Kraemer — Fundamentos do Treinamento de Força Muscular, 4.ª ed. (Artmed, 2017)',
+  tags: ['Princípios','Periodização','Hipertrofia','Populações','Destreino'],
+  sections: [
+    {
+      title: 'Princípios básicos e tipos de treinamento resistido',
+      body: `
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Princípio</th><th>Definição</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sobrecarga progressiva</strong></td><td>Estímulo deve exceder o habitual para gerar nova adaptação</td></tr>
+    <tr><td><strong>Especificidade (SAID)</strong></td><td>Adaptações são específicas ao sistema, padrão e tipo de contração treinados</td></tr>
+    <tr><td><strong>Reversibilidade</strong></td><td>Ganhos se perdem com o destreinamento</td></tr>
+    <tr><td><strong>Variação / periodização</strong></td><td>Manipular variáveis para evitar platô e overtraining</td></tr>
+    <tr><td><strong>Individualidade</strong></td><td>Resposta ao treino varia geneticamente entre indivíduos</td></tr>
+  </tbody>
+</table></div>
+<div class="sub-h">Tipos de contração muscular</div>
+<ul class="kc-list">
+  <li><strong>Concêntrica</strong>: músculo encurta ao gerar força (fase positiva)</li>
+  <li><strong>Excêntrica</strong>: músculo alonga sob tensão (fase negativa); maior força gerada; maior DOMS</li>
+  <li><strong>Isométrica</strong>: sem alteração de comprimento; ação estática</li>
+  <li><strong>Isocinética</strong>: velocidade angular constante; avaliação por dinamometro Cybex</li>
+</ul>
+<div class="sub-h">Relação carga × repetições</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Objetivo</th><th>% 1RM</th><th>Reps</th><th>Séries</th><th>Descanso</th></tr></thead>
+  <tbody>
+    <tr><td>Força máxima</td><td>≥85%</td><td>1–5</td><td>3–5</td><td>3–5 min</td></tr>
+    <tr><td>Hipertrofia</td><td>67–85%</td><td>6–12</td><td>3–4</td><td>60–90 s</td></tr>
+    <tr><td>Resistência muscular</td><td>&lt;67%</td><td>≥15</td><td>2–3</td><td>&lt;60 s</td></tr>
+    <tr><td>Potência</td><td>30–60%</td><td>1–5 (máx vel)</td><td>3–5</td><td>3–5 min</td></tr>
+  </tbody>
+</table></div>`
+    },
+    {
+      title: 'Adaptações fisiológicas ao treinamento resistido',
+      body: `
+<div class="sub-h">Adaptações neurais (primeiras 2-8 semanas)</div>
+<ul class="kc-list">
+  <li>↑ Recrutamento de unidades motoras</li>
+  <li>↑ Frequência de disparo (codificação por frequência)</li>
+  <li>↑ Sincronização entre UM</li>
+  <li>↓ Co-ativação antagonista (maior eficiência)</li>
+</ul>
+<div class="sub-h">Hipertrofia muscular (semanas 4-8 em diante)</div>
+<ul class="kc-list">
+  <li>↑ síntese de actina e miosina → ↑ diâmetro das miofibrilas</li>
+  <li>Estimulada por: tensão mecânica (cargas altas), estresse metabólico (volumes altos) e dano muscular (DOMS)</li>
+  <li>Via mTOR ativada por IGF-1, aminoácidos (leucina) e tensão mecânica</li>
+  <li>Miostatina: inibidor natural da hipertrofia; treinamento a suprime</li>
+</ul>
+<div class="sub-h">Adaptações ósseas e conjuntivas</div>
+<ul class="kc-list">
+  <li>↑ densidade mineral óssea (Lei de Wolff)</li>
+  <li>↑ espessura de tendões e ligamentos; ↑ síntese de colágeno</li>
+  <li>↑ cartilagem articular (proteção articular)</li>
+</ul>
+<div class="callout c-ok">
+  <span class="c-label">Hipertrofia vs. Hiperplasia</span>
+  Hipertrofia = ↑ volume de fibras existentes (comprovada em humanos). Hiperplasia = ↑ número de fibras (mínima evidência em humanos; possível em animais com cargas extremas).
+</div>`
+    },
+    {
+      title: 'Periodização do treinamento de força',
+      body: `
+<div class="sub-h">Estrutura temporal</div>
+<ul class="kc-list">
+  <li><strong>Microciclo</strong>: 5-10 dias (semana de treino)</li>
+  <li><strong>Mesociclo</strong>: 3-6 semanas (bloco com objetivo específico)</li>
+  <li><strong>Macrociclo</strong>: 3-12 meses ou 1 temporada completa</li>
+</ul>
+<div class="sub-h">Periodização linear (clássica)</div>
+<p class="prose">Volume alto e intensidade baixa no início → volume ↓ e intensidade ↑ ao longo dos mesociclos. Simples e eficaz para iniciantes.</p>
+<div class="sub-h">Periodização ondulante (DUP — Daily Undulating Periodization)</div>
+<p class="prose">Variação da carga e volume dentro da mesma semana (ex.: 2ª força, 4ª potência, 6ª hipertrofia). Eficaz para intermediários e avançados; evita adaptação rápida.</p>
+<div class="callout c-hl">
+  <span class="c-label">Overreaching funcional vs. Overtraining</span>
+  <strong>Overreaching funcional</strong>: sobrecarga intencional → queda temporária de desempenho → supercompensação após descanso.
+  <strong>Overtraining</strong>: carga excessiva sem recuperação → queda persistente (&gt;2 sem) + sintomas sistêmicos (humor, sono, imunidade).
+</div>`
+    },
+    {
+      title: 'Métodos avançados, destreinamento e populações',
+      body: `
+<div class="sub-h">Métodos de treino</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Método</th><th>Descrição</th><th>Objetivo</th></tr></thead>
+  <tbody>
+    <tr><td>Drop set</td><td>Falha → ↓carga imediata → continua</td><td>Volume/hipertrofia</td></tr>
+    <tr><td>Superset agonista-antagonista</td><td>Bíceps + tríceps sem pausa</td><td>Tempo/hipertrofia</td></tr>
+    <tr><td>Pré-exaustão</td><td>Isolado → composto sem pausa</td><td>Isolamento + sobrecarga</td></tr>
+    <tr><td>BFR (oclusão vascular)</td><td>20-40% 1RM + manguito</td><td>Hipertrofia com baixa carga</td></tr>
+    <tr><td>Cluster sets</td><td>Pausa dentro da série</td><td>Força/potência máxima</td></tr>
+  </tbody>
+</table></div>
+<div class="sub-h">Destreinamento</div>
+<ul class="kc-list">
+  <li>Primeiras 2-3 semanas: perda principalmente por fatores <em>neurais</em>; massa preservada</li>
+  <li>Após 4 semanas: perda de massa muscular e densidade óssea</li>
+  <li>Cardiorrespiratório perde adaptações mais rápido que força</li>
+</ul>
+<div class="sub-h">Populações especiais</div>
+<ul class="kc-list">
+  <li><strong>Mulheres</strong>: menor hipertrofia absoluta (↓testosterona), mas ganhos % de força similares; menor risco de hipertrofia excessiva</li>
+  <li><strong>Crianças</strong>: ganhos principalmente neurais (pré-puberdade); seguros com supervisão e cargas adequadas; proteger epífises</li>
+  <li><strong>Idosos</strong>: previne sarcopenia, melhora equilíbrio, reduz quedas, ↑ DMO; iniciar com 50-70% 1RM, progressão cautelosa</li>
+</ul>`
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════
+// 6 · BIOMECÂNICA
+// Hamill, Knutzen & Derrick, 4.ª ed., Manole, 2016
+// ══════════════════════════════════════════════════════════
+{
+  id: '6', icon: '📐',
+  name: 'Biomecânica',
+  bib: 'Hamill, Knutzen & Derrick — Bases Biomecânicas do Movimento Humano, 4.ª ed. (Manole, 2016)',
+  tags: ['Cinemática','Cinética','Torque','Alavancas','Lesão','GRF'],
+  sections: [
+    {
+      title: 'Terminologia e referencial anatômico',
+      body: `
+<div class="sub-h">Planos, eixos e movimentos</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Plano</th><th>Eixo de rotação</th><th>Movimentos</th></tr></thead>
+  <tbody>
+    <tr><td>Sagital</td><td>Mediolateral</td><td>Flexão, extensão, hiperextensão</td></tr>
+    <tr><td>Frontal (coronal)</td><td>Anteroposterior</td><td>Abdução, adução, inclinação lateral</td></tr>
+    <tr><td>Transversal</td><td>Vertical (longitudinal)</td><td>Rotação interna/externa, pronação/supinação</td></tr>
+  </tbody>
+</table></div>
+<div class="callout c-def">
+  <span class="c-label">Sistemas de referência</span>
+  Absoluto (fixo no espaço) e relativo (segmento corporal). Dados cinemáticos são referidos ao sistema absoluto para comparação entre sujeitos.
+</div>`
+    },
+    {
+      title: 'Cinemática — análise do movimento',
+      body: `
+<div class="sub-h">Cinemática linear</div>
+<div class="formula">
+  <span class="fl">Equações básicas</span>
+  Velocidade: <span class="fv">v = Δd / Δt</span><br>
+  Aceleração: <span class="fv">a = Δv / Δt</span><br>
+  Potência: <span class="fv">P = F × v</span>
+</div>
+<div class="sub-h">Cinemática angular</div>
+<div class="formula">
+  <span class="fl">Unidades e conversão</span>
+  1 rad = 57,3° · Velocidade angular: <span class="fv">ω = Δθ / Δt</span> (rad/s)<br>
+  Velocidade linear × segmento: <span class="fv">v = ω × r</span>
+</div>
+<div class="sub-h">Centro de gravidade (CG)</div>
+<ul class="kc-list">
+  <li>CG do corpo em posição anatômica: ~55-57% da estatura (perto de S2)</li>
+  <li>Varia com postura e distribuição de massa (adiposidade, MMSS elevados)</li>
+  <li>Base de apoio ampla e CG baixo → maior estabilidade</li>
+</ul>`
+    },
+    {
+      title: 'Cinética linear e angular — forças e torques',
+      body: `
+<div class="sub-h">Leis de Newton aplicadas ao movimento humano</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Lei</th><th>Enunciado</th><th>Aplicação esportiva</th></tr></thead>
+  <tbody>
+    <tr><td>1ª (Inércia)</td><td>Corpo em repouso/MRU sem força resultante</td><td>Mudança de direção exige força</td></tr>
+    <tr><td>2ª (F=ma)</td><td>F = m × a; aceleração proporcional à força</td><td>Massa maior exige mais força para acelerar</td></tr>
+    <tr><td>3ª (Ação-reação)</td><td>Para toda ação há reação igual e oposta</td><td>GRF na corrida, salto, natação</td></tr>
+  </tbody>
+</table></div>
+<div class="formula">
+  <span class="fl">Torque (momento de força)</span>
+  T = <span class="fv">F × d⊥</span> (braço de momento)
+  <br>Unidade: N·m · Quanto maior d⊥, maior o torque com mesma força
+</div>
+<div class="sub-h">Sistema de alavancas</div>
+<ul class="kc-list">
+  <li><strong>1ª classe</strong>: fulcro entre força e resistência (ex.: extensão da cabeça)</li>
+  <li><strong>2ª classe</strong>: resistência entre fulcro e força (ex.: flexão plantar na ponta dos pés)</li>
+  <li><strong>3ª classe</strong>: força entre fulcro e resistência (mais comum no corpo; braco de força menor → velocidade)</li>
+</ul>
+<div class="callout c-hl">
+  <span class="c-label">GRF — Força de Reação do Solo</span>
+  Caminhada: ~1,0-1,2× peso · Corrida: ~2-3× peso · Aterrissagem de salto: até 5-8× peso. Importante para análise de lesões por sobrecarga.
+</div>`
+    },
+    {
+      title: 'Anatomia funcional dos membros e tronco',
+      body: `
+<div class="sub-h">Membro superior — músculos chave</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Músculo</th><th>Ação principal</th><th>Inserção</th></tr></thead>
+  <tbody>
+    <tr><td>Manguito rotador (SEIS)</td><td>Estabilização glenoumeral, rotação</td><td>SEIS: supraespinal, infraespinal, redondo menor, subescapular</td></tr>
+    <tr><td>Deltóide</td><td>Abdução do ombro</td><td>Tuberosidade deltoide do úmero</td></tr>
+    <tr><td>Bíceps braquial</td><td>Flexão cotovelo + supinação</td><td>Tuberosidade radial</td></tr>
+    <tr><td>Tríceps braquial</td><td>Extensão cotovelo</td><td>Olécrano da ulna</td></tr>
+  </tbody>
+</table></div>
+<div class="sub-h">Membro inferior — músculos chave</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Músculo / Grupo</th><th>Ação principal</th></tr></thead>
+  <tbody>
+    <tr><td>Quadríceps (4 m.)</td><td>Extensão do joelho; o reto femoral também faz flexão de quadril</td></tr>
+    <tr><td>Isquiossurais (3 m.)</td><td>Flexão de joelho + extensão de quadril</td></tr>
+    <tr><td>Glúteo máximo</td><td>Extensão e rotação extern. de quadril — motor primário na corrida/salto</td></tr>
+    <tr><td>Tríceps sural (gastrocnêmio + solear)</td><td>Flexão plantar — inserção no calcâneo via tendão de Aquiles</td></tr>
+    <tr><td>Tibial anterior</td><td>Dorsiflexão + inversão — antag. ao triceps sural</td></tr>
+  </tbody>
+</table></div>
+<div class="sub-h">Cadeia cinética</div>
+<p class="prose">No arremesso / chute: energia flui proximal → distal (perna → quadril → tronco → braço → mão). Ruptura em qualquer elo reduz a velocidade final do segmento distal e sobrecarrega outros elos.</p>`
+    },
+    {
+      title: 'Biomecânica do joelho e análise de movimento',
+      body: `
+<div class="sub-h">Joelho — estruturas críticas</div>
+<ul class="kc-list">
+  <li><strong>LCA</strong> (ligamento cruzado anterior): limita translação anterior da tíbia; risco ↑ no valgismo dinâmico + rotação interna</li>
+  <li><strong>LCM / LCL</strong>: colaterais medial e lateral; estabilidade varo-valgo</li>
+  <li><strong>Meniscos</strong>: absorção de impacto, congruência, lubrificação</li>
+  <li><strong>Patela</strong>: aumenta o braço de momento do quadríceps (~50%)</li>
+</ul>
+<div class="callout c-warn">
+  <span class="c-label">Valgo dinâmico (joelho em X) — fator de risco para LCA</span>
+  Combinação de abdução + rotação interna femoral + colapso medial do joelho na aterrissagem. Mais prevalente em mulheres. Intervenção preventiva: ↑ força de glúteos e isquiossurais, treinamento de aterrissagem.
+</div>
+<div class="sub-h">EMG (Eletromiografia de superfície)</div>
+<p class="prose">Registra atividade elétrica dos músculos superficiais. Fornece: padrão de recrutamento (timing), amplitude relativa de ativação. Limitações: diafonia (crosstalk), profundidade limitada, normalização necessária.</p>`
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════
+// 7 · TREINAMENTO FUNCIONAL
+// Boyle, O Novo Modelo de Treinamento Funcional, 2.ª ed., Artmed, 2018
+// ══════════════════════════════════════════════════════════
+{
+  id: '7', icon: '🔄',
+  name: 'Treinamento Funcional',
+  bib: 'Boyle — O Novo Modelo de Treinamento Funcional, 2.ª ed. (Artmed, 2018)',
+  tags: ['Core','Mobilidade','Pliometria','Padrões','FMS','CAE'],
+  sections: [
+    {
+      title: 'Conceito e análise das demandas do esporte',
+      body: `
+<div class="callout c-def">
+  <span class="c-label">Definição — Treinamento Funcional (Boyle)</span>
+  Treino que desenvolve força, estabilidade, mobilidade e potência em padrões de movimento que transferem diretamente para as demandas funcionais esportivas ou da vida cotidiana.
+</div>
+<div class="sub-h">Análise das demandas do esporte</div>
+<ul class="kc-list">
+  <li>Planos de movimento envolvidos (sagital, frontal, transversal)</li>
+  <li>Base de apoio (bipodal, unipodal, em movimento)</li>
+  <li>Velocidade e tipo de contração (explosivo vs. sustentado)</li>
+  <li>Sistema energético predominante (ATP-PCr, glicolítico, oxidativo)</li>
+  <li>Cadeia cinética envolvida (superior, inferior, total)</li>
+</ul>
+<div class="sub-h">Mobilidade vs. Flexibilidade</div>
+<ul class="kc-list">
+  <li><strong>Flexibilidade</strong>: extensibilidade passiva dos tecidos (comprimento muscular/fascial)</li>
+  <li><strong>Mobilidade</strong>: amplitude de movimento que o atleta controla <em>ativamente</em></li>
+  <li>Um músculo pode ser flexível mas com mobilidade limitada por fraqueza ou controle motor insuficiente</li>
+</ul>`
+    },
+    {
+      title: 'Avaliação da força funcional — FMS e testes',
+      body: `
+<div class="sub-h">Functional Movement Screen (FMS)</div>
+<ul class="kc-list">
+  <li>7 padrões: agachamento profundo, step, avanço em linha, mobilidade de ombro, elevação ativa da perna reta, flexão de tronco, estabilidade rotatória</li>
+  <li>Pontuação 0-3 por padrão; máx. 21 pts</li>
+  <li>Score &lt;14: associado a ↑ risco de lesão em atletas</li>
+  <li>Assimetrias (&gt;1 ponto entre lados) são mais preditivas que o score total</li>
+</ul>
+<div class="sub-h">Outros testes funcionais</div>
+<ul class="kc-list">
+  <li><strong>Y-Balance Test</strong>: equilíbrio dinâmico unipodal em 3 direções</li>
+  <li><strong>Agachamento unipodal</strong>: avalia alinhamento de quadril-joelho-tornozelo e força de glúteos</li>
+  <li><strong>Overhead squat</strong>: mobilidade de tornozelo, quadril e ombros integrados</li>
+</ul>`
+    },
+    {
+      title: 'Foam rolling, aquecimento dinâmico e core',
+      body: `
+<div class="sub-h">Sequência pré-treino (Boyle)</div>
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-txt"><strong>Foam rolling</strong>: liberação miofascial — TI-T (quadril/IT banda, quadríceps, panturrilha, dorsal). 20-30s/área tensa.</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-txt"><strong>Mobilidade articular</strong>: quadril, tornozelo, torácica (áreas mobile). Exercícios dinâmicos em amplitude controlada.</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-txt"><strong>Ativação</strong>: glúteos (pontes, clam shell), estabilizadores escapulares, core profundo.</div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-txt"><strong>Aquecimento específico</strong>: exercícios progressivos relacionados à sessão principal.</div></div>
+</div>
+<div class="callout c-def">
+  <span class="c-label">Core — 4 componentes (Boyle)</span>
+  Transverso do abdômen (deep core), multífido, diafragma e assoalho pélvico. Ativam-se preventivamente antes dos movimentos dos membros (feed-forward). Exercícios: prancha, dead bug, pallof press, carries.
+</div>
+<div class="callout c-hl">
+  <span class="c-label">Joint-by-joint approach (Cook & Boyle)</span>
+  Alternância de articulações que precisam de mobilidade (tornozelo, quadril, torácica, ombro) e estabilidade (joelho, lombar, escapular). Disfunção em qualquer nível afeta os adjacentes.
+</div>`
+    },
+    {
+      title: 'Padrões de movimento e treinamento pliométrico',
+      body: `
+<div class="sub-h">Padrões primários de movimento (Boyle)</div>
+<ul class="kc-list">
+  <li><strong>Agachar</strong> (squat pattern): agachamento bilateral/unilateral</li>
+  <li><strong>Dobrar</strong> (hip hinge): levantamento terra, RDL, kettlebell swing</li>
+  <li><strong>Empurrar</strong>: horizontal (supino, flexão), vertical (desenvolvimento)</li>
+  <li><strong>Puxar</strong>: horizontal (remada), vertical (pull-up, pulley)</li>
+  <li><strong>Rotacionar</strong>: core anti-rotação e rotação esportiva</li>
+  <li><strong>Transportar</strong> (carry): farmers walk, overhead carry</li>
+  <li><strong>Locomover</strong>: corrida, salto, mudança de direção</li>
+</ul>
+<div class="sub-h">Treinamento pliométrico — CAE</div>
+<div class="formula">
+  <span class="fl">Ciclo de Alongamento-Encurtamento (CAE)</span>
+  Fase <span class="fv">excêntrica</span> (armazenamento elástico) → Amortecimento → Fase <span class="fv">concêntrica</span> (liberação explosiva)
+</div>
+<ul class="kc-list">
+  <li>Progressão: saltos bilaterais → unilaterais → aterrissagem com controle → profundidade</li>
+  <li>Precondição: força mínima (ex.: agachamento 1,5× peso corporal) antes de pliometria avançada</li>
+  <li>Volume pliométrico: contatos/sessão (iniciante: 80-100; avançado: 200-250)</li>
+</ul>
+<div class="sub-h">Levantamento olímpico no TF</div>
+<ul class="kc-list">
+  <li>Clean & jerk, snatch: máxima potência global, coordenação da cadeia cinética</li>
+  <li>Transferência direta para esportes explosivos (velocidade, salto, luta)</li>
+  <li>Requer aprendizado técnico progressivo antes de cargas elevadas</li>
+</ul>`
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════
+// 8 · NATAÇÃO
+// Maglischo, Nadando o mais rápido possível, 3.ª ed., Manole, 2010
+// ══════════════════════════════════════════════════════════
+{
+  id: '8', icon: '🏊',
+  name: 'Natação',
+  bib: 'Maglischo — Nadando o Mais Rápido Possível, 3.ª ed. (Manole, 2010)',
+  tags: ['Propulsão','Arrasto','4 Nados','Periodização','Polimento','Energia'],
+  sections: [
+    {
+      title: 'Propulsão e resistência hidrdinâmica',
+      body: `
+<div class="sub-h">Princípios de propulsão</div>
+<ul class="kc-list">
+  <li><strong>Força de arrasto propulsivo</strong>: mão/pé empurra água para trás → reação propulsiona o corpo para frente (3ª Lei)</li>
+  <li><strong>Força de sustentação (lift)</strong>: via Bernoulli — mão inclinada cria diferença de pressão entre as faces → componente propulsivo perpendicular ao movimento da mão</li>
+  <li>Maglischo enfatiza a combinação de arrasto + sustentação; as varreduras da mão maximizam a velocidade relativa água-mão</li>
+</ul>
+<div class="sub-h">Resistência (drag) — tipos</div>
+<ul class="kc-list">
+  <li><strong>Arrasto de forma</strong>: resistência frontal à passagem do corpo; reduzida pela posição horizontal</li>
+  <li><strong>Arrasto de onda</strong>: criação de ondas na superfície; ↑ com velocidade</li>
+  <li><strong>Arrasto de atrito</strong>: fricção pele-água; roupas tecno reduzem via repelência e compressão</li>
+</ul>
+<div class="formula">
+  <span class="fl">Velocidade de nado (Maglischo)</span>
+  V = <span class="fv">FB × CB</span>
+  <br>FB = frequência de braçada · CB = comprimento de braçada
+  <br>Treino de velocidade ↑ FB; treino técnico ↑ CB
+</div>`
+    },
+    {
+      title: 'Os quatro nados — técnica e biomecânica',
+      body: `
+<div class="sub-h">Nado Crawl (estilo livre)</div>
+<ul class="kc-list">
+  <li>Posição: corpo plano, rotação longitudinal (~45°) com cada braçada</li>
+  <li>Bracejada: entrada do polegar levemente afastado → varredura para fora → para baixo-dentro → para cima-fora (saída)</li>
+  <li>Respiração: rotação lateral da cabeça (≤45°); boca apenas; bilateralmente preferível</li>
+  <li>Pernada: 2, 4 ou 6 batimentos por ciclo de braços; joelhos levemente flexionados</li>
+</ul>
+<div class="sub-h">Nado de Costas</div>
+<ul class="kc-list">
+  <li>Posição supina, cabeça neutra, quadris próximos à superfície</li>
+  <li>Entrada: extensão do ombro → mão entra na linha do ombro (não cruzar a linha média)</li>
+  <li>Saída: dedos apontados para fora; recuperação com cotovelo estendido</li>
+</ul>
+<div class="sub-h">Nado de Borboleta</div>
+<ul class="kc-list">
+  <li>Ondulação corporal inicia no quadril → propaga para joelhos → pés (dolphin kick)</li>
+  <li>2 batimentos de perna por ciclo de braços; sincronização timing crítico</li>
+  <li>Respiração: frente, não lateral; cabeça entra antes dos braços</li>
+</ul>
+<div class="sub-h">Nado de Peito</div>
+<ul class="kc-list">
+  <li>Único nado sem rotação; simetria bilateral obrigatória (regra FINA)</li>
+  <li>Varredura de mãos para fora → para dentro → extensão dos braços à frente</li>
+  <li>Virada de pés: dorsiflexão + eversão → fase propulsiva da pernada de peito</li>
+</ul>`
+    },
+    {
+      title: 'Saídas, viradas e chegadas',
+      body: `
+<div class="sub-h">Saída (Grab Start / Track Start)</div>
+<ul class="kc-list">
+  <li>Ângulo de projeção: 35-40° para maximizar distância horizontal e minimizar resistência na entrada</li>
+  <li>Fase subaquática (glide): streamline até 15 m (regra FINA); undulation dolphin no crawl/borboleta</li>
+  <li>Saída de costas: atleta na água de frente para a parede + barra de partida</li>
+</ul>
+<div class="sub-h">Virada — Tumble Turn (crawl/costas)</div>
+<ul class="kc-list">
+  <li>Virada de frente (flip turn): 1 giro somersault → pés na parede → impulsão forte → glide + dolphin</li>
+  <li>Reduz ~1-2 s por virada comparado à virada aberta</li>
+  <li>Virada aberta: peito e borboleta (toque com 2 mãos simultâneas)</li>
+</ul>
+<div class="sub-h">Chegada</div>
+<ul class="kc-list">
+  <li>Crawl/costas: toque com ponta dos dedos ou mão; máxima velocidade mantida</li>
+  <li>Peito/borboleta: toque simultâneo das 2 mãos no mesmo nível (obrigatório)</li>
+</ul>`
+    },
+    {
+      title: 'Metabolismo energético e princípios do treinamento',
+      body: `
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Prova</th><th>Sistema predominante</th><th>% Aeróbio</th></tr></thead>
+  <tbody>
+    <tr><td>50 m (~23-25s)</td><td>ATP-PCr + glicolítico</td><td>~20-30%</td></tr>
+    <tr><td>100 m (~48-60s)</td><td>Glicolítico + oxidativo</td><td>~45-55%</td></tr>
+    <tr><td>200 m (~2 min)</td><td>Predomin. oxidativo</td><td>~65-75%</td></tr>
+    <tr><td>400-1500 m</td><td>Predomin. aeróbio</td><td>&gt;80-95%</td></tr>
+  </tbody>
+</table></div>
+<div class="sub-h">Zonas de treinamento (Maglischo)</div>
+<ul class="kc-list">
+  <li><strong>Zona 1 (recovery)</strong>: &lt;2 mmol/L lactato; regeneração ativa</li>
+  <li><strong>Zona 2 (aeróbio base)</strong>: 2-4 mmol/L; base aeróbia; maioria do volume</li>
+  <li><strong>Zona 3 (limiar)</strong>: ~4 mmol/L (MLSS); melhora limiar de lactato</li>
+  <li><strong>Zona 4 (VO₂máx)</strong>: 4-8 mmol/L; intervalos curtos-médios; eleva VO₂máx</li>
+  <li><strong>Zona 5-6 (anaeróbio)</strong>: &gt;8 mmol/L; tolerância ao lactato; tiros de velocidade</li>
+</ul>
+<div class="sub-h">Monitoramento</div>
+<ul class="kc-list">
+  <li>Lactato sanguíneo em esforços escalonados: construção da curva lactato-velocidade</li>
+  <li>HRV (variabilidade de FC): marcador de recuperação e sobrecarga do SNA</li>
+  <li>RPE + análise de splits: controle diário de qualidade</li>
+</ul>`
+    },
+    {
+      title: 'Periodização, polimento e supertreinamento',
+      body: `
+<div class="sub-h">Estrutura da temporada (Maglischo)</div>
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-txt"><strong>Base aeróbia</strong>: alto volume, baixa intensidade; desenvolver capacidade oxidativa</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-txt"><strong>Construção</strong>: ↑ intensidade; treino no limiar, intervalados; ↓ volume relativo</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-txt"><strong>Pré-competição</strong>: velocidade de prova, tiros curtos de alta intensidade</div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-txt"><strong>Polimento (tapering)</strong>: redução de volume, manutenção de intensidade</div></div>
+  <div class="step"><div class="step-n">5</div><div class="step-txt"><strong>Competição</strong>: peak de desempenho</div></div>
+</div>
+<div class="callout c-ok">
+  <span class="c-label">Polimento (tapering)</span>
+  Redução de <strong>volume em 40-70%</strong> nas 1-3 semanas finais. Manutenção de intensidade. Ganhos: ↑ força e potência muscular, ↓ fadiga neuromuscular, ↑ motivação. Para Maglischo, a melhora da potência anaeróbia é o principal fator dos melhores resultados pós-polimento.
+</div>
+<div class="callout c-warn">
+  <span class="c-label">Supertreinamento (overtraining)</span>
+  Queda de desempenho &gt;2 semanas + sintomas: distúrbios do humor (POMS), infecções frequentes, alterações hormonais (↓T/C ratio), insônia, FC elevada em repouso. Tratamento: descanso progressivo (semanas a meses).
+</div>`
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════
+// 9 · CORRIDA
+// Machado, Corrida: Manual Prático de Treinamento, 1.ª ed., Phorte, 2013
+// ══════════════════════════════════════════════════════════
+{
+  id: '9', icon: '🏃',
+  name: 'Corrida',
+  bib: 'Machado — Corrida: Manual Prático de Treinamento, 1.ª ed. (Phorte, 2013)',
+  tags: ['Mecânica','Técnica','Periodização','Lesões','Avaliação','Complementar'],
+  sections: [
+    {
+      title: 'Mecânica da corrida — ciclo de passada',
+      body: `
+<div class="sub-h">Fases da passada</div>
+<ul class="kc-list">
+  <li><strong>Fase de apoio</strong> (~40% do ciclo): contato inicial → médio apoio → retirada do pé</li>
+  <li><strong>Fase de voo</strong> (~60%): ambos os pés no ar; ↑ com velocidade</li>
+  <li><strong>Contato inicial</strong>: calcanhar (rearfoot) — caminhada/corrida lenta; médio pé (midfoot) — velocidade moderada; antepé (forefoot) — sprint</li>
+</ul>
+<div class="callout c-def">
+  <span class="c-label">Cadência ideal (Machado / literatura)</span>
+  170-185 passos/min (~85-92 por pé). Cadências menores (&lt;160) aumentam oversride (passada à frente do CG) e impacto vertical. Aumento de ~5-10% da cadência habitual reduz cargas articulares.
+</div>
+<div class="sub-h">Técnica eficiente</div>
+<ul class="kc-list">
+  <li>Postura: ereta, levemente inclinada à frente a partir dos tornozelos (não da cintura)</li>
+  <li>Pé de apoio: abaixo ou ligeiramente à frente do CG (não muito à frente = overstride)</li>
+  <li>Braços: cotovelos ~90°, mãos relaxadas, oscilação anteroposterior (não cruzar linha média)</li>
+  <li>Oscilação vertical mínima (energia desperdiçada para cima)</li>
+  <li>Olhar: horizonte, ~10-20 m à frente</li>
+</ul>`
+    },
+    {
+      title: 'O treinamento — métodos e sistemas energéticos',
+      body: `
+<div class="sub-h">Tipos de treino (Machado)</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Treino</th><th>Intensidade</th><th>Objetivo</th></tr></thead>
+  <tbody>
+    <tr><td>Longo (LSD)</td><td>Leve-moderado (Z1-Z2)</td><td>Base aeróbia, economia de corrida</td></tr>
+    <tr><td>Limiar (Tempo run)</td><td>Limiar anaeróbio (Z3)</td><td>↑ limiar de lactato</td></tr>
+    <tr><td>Intervalado</td><td>VO₂máx (Z4)</td><td>↑ VO₂máx, potência aeróbia</td></tr>
+    <tr><td>Repetições (sprint)</td><td>Máximo (Z5-6)</td><td>Velocidade máxima, economia neural</td></tr>
+    <tr><td>Fartlek</td><td>Variado</td><td>Mudanças de ritmo; treinamento misto</td></tr>
+  </tbody>
+</table></div>
+<div class="callout c-warn">
+  <span class="c-label">Regra dos 10% (sobrecarga progressiva)</span>
+  Não aumentar o volume semanal mais que 10% por semana. Progressão excessiva é a principal causa de lesões em corredores.
+</div>
+<div class="sub-h">O "Muro" na maratona</div>
+<p class="prose">Ocorre ao redor do km 30-35 pela depleção de glicogênio muscular e hepático. O organismo passa a depender quase exclusivamente de lipídios (↓velocidade de ATP) e proteínas. Estratégia: pace conservador, carboidratos durante a prova (30-60 g/h), treinos longos para ↑ estoques de glicogênio.</p>`
+    },
+    {
+      title: 'Aprendizagem da técnica de corrida',
+      body: `
+<div class="sub-h">Erros comuns e correção</div>
+<div class="tbl-wrap"><table>
+  <thead><tr><th>Erro</th><th>Causa</th><th>Correção</th></tr></thead>
+  <tbody>
+    <tr><td>Overstride (passada excessiva)</td><td>Tentativa de ir mais rápido → talão à frente do CG</td><td>↑ cadência; cues de "roda embaixo do quadril"</td></tr>
+    <tr><td>Bounce (muita oscilação vertical)</td><td>Fraqueza glúteo/core</td><td>Drills de cadência; corridas em ladeira descendente controlada</td></tr>
+    <tr><td>Braços cruzando linha média</td><td>Rotação excessiva de tronco</td><td>Consciência + drills de braços</td></tr>
+    <tr><td>Inclinação excessiva para frente</td><td>Fraqueza de core / encurtamento de hip flexor</td><td>Alongamento hip flexors + exercícios de core</td></tr>
+  </tbody>
+</table></div>
+<div class="callout c-def">
+  <span class="c-label">Progressão de aprendizagem técnica (Machado)</span>
+  Consciência corporal → Drills específicos (A, B, C skips; ankling) → Corrida com feedback (vídeo/espelho) → Automatização progressiva → Integração em treino normal. Corrigir UM elemento por vez.
+</div>`
+    },
+    {
+      title: 'Periodização, avaliação e treinamento complementar',
+      body: `
+<div class="sub-h">Periodização para corrida de rua</div>
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-txt"><strong>Preparação geral</strong>: base aeróbia, volume moderado, força geral</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-txt"><strong>Preparação específica</strong>: intervalados, tempo runs, simulados de prova</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-txt"><strong>Pré-competição (polimento)</strong>: 2-3 semanas — ↓ volume 40-60%, manter intensidade; treinos curtos em ritmo de prova</div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-txt"><strong>Competição</strong>: peak de desempenho</div></div>
+  <div class="step"><div class="step-n">5</div><div class="step-txt"><strong>Recuperação / transição</strong>: descanso ativo, volume muito baixo</div></div>
+</div>
+<div class="sub-h">Avaliação do corredor (Machado)</div>
+<ul class="kc-list">
+  <li>Anamnese completa: histórico de lesões, calçados, volume prévio, objetivos</li>
+  <li>Análise da pisada (barefoot/treadmill video): padrão de contato, cadência, overstride</li>
+  <li>Testes funcionais: força de glúteos e MMII, equilíbrio unipodal, flexibilidade</li>
+  <li>Testes de VO₂máx ou submáximos (Cooper, pista, esteira)</li>
+</ul>
+<div class="sub-h">Treinamento complementar (cross-training)</div>
+<ul class="kc-list">
+  <li>Musculação: glúteos, isquiossurais, core, panturrilha — previne lesões, melhora economia</li>
+  <li>Natação / ciclismo: condicionamento aeróbio sem impacto (especialmente em lesões)</li>
+  <li>Pliometria: ↑ stiffness tendíneo, ↑ aproveitamento elástico</li>
+</ul>
+<div class="sub-h">Lesões mais comuns em corredores</div>
+<ul class="kc-list">
+  <li>Síndrome da banda iliotibial (joelho do corredor): dor lateral de joelho</li>
+  <li>Fascite plantar: dor no calcanhar, piora no primeiro passo da manhã</li>
+  <li>Periostite tibial (shin splints): dor anteromedial de tíbia</li>
+  <li>Tendinopatia do Aquiles: dor/rigidez posterior de tornozelo</li>
+  <li>Síndrome patelofemoral: dor anterior de joelho, piora em descidas</li>
+</ul>`
+    }
+  ]
+}
+
+]; // end CONTENT
+
+</script>
+<script>
+// ── NAVIGATION ────────────────────────────────────────────
+let currentTab = 'index';
+
+function goTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('p-' + id).classList.add('active');
+  el.classList.add('active');
+  currentTab = id;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // update header topic name
+  const topicEl = document.getElementById('p-' + id + '-title');
+  document.getElementById('hdr-topic').textContent = topicEl ? topicEl.dataset.name : 'Índice Geral';
+}
+
+// ── ACCORDION ─────────────────────────────────────────────
+function toggleAcc(el) {
+  const wrap = el.closest('.acc-wrap');
+  const isOpen = wrap.classList.contains('open');
+  // close siblings
+  wrap.closest('.section')?.querySelectorAll('.acc-wrap').forEach(w => w.classList.remove('open'));
+  if (!isOpen) wrap.classList.add('open');
+}
+
+// ── SEARCH ────────────────────────────────────────────────
+function openSearch() {
+  document.getElementById('search-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('search-input').focus(), 80);
+}
+function closeSearch() {
+  document.getElementById('search-overlay').classList.remove('open');
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-results').innerHTML = '<p class="sr-empty">Digite para buscar...</p>';
+}
+
+function doSearch(q) {
+  const container = document.getElementById('search-results');
+  q = q.trim().toLowerCase();
+  if (q.length < 2) { container.innerHTML = '<p class="sr-empty">Digite ao menos 2 caracteres...</p>'; return; }
+  const results = [];
+  CONTENT.forEach(topic => {
+    topic.sections.forEach(sec => {
+      // search in section title + text snippets
+      const haystack = (sec.title + ' ' + extractText(sec.body)).toLowerCase();
+      if (haystack.includes(q)) {
+        const snip = extractText(sec.body).substring(0, 90);
+        results.push({ topicId: topic.id, topicName: topic.name, title: sec.title, snip });
+      }
+    });
+  });
+  if (!results.length) { container.innerHTML = '<p class="sr-empty">Nenhum resultado para "' + q + '"</p>'; return; }
+  container.innerHTML = results.slice(0, 20).map(r => `
+    <div class="sr-item" onclick="goSearchResult('${r.topicId}')">
+      <div class="sr-topic">${r.topicName}</div>
+      <div class="sr-title">${r.title}</div>
+      <div class="sr-snip">${r.snip}…</div>
+    </div>`).join('');
+}
+
+function goSearchResult(topicId) {
+  closeSearch();
+  const btn = document.querySelector(`[onclick="goTab('${topicId}',this)"]`);
+  if (btn) goTab(topicId, btn);
+}
+
+function extractText(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.textContent.replace(/\s+/g, ' ').trim();
+}
+
+// ── SCROLL BUTTON ─────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('backtop').classList.toggle('show', window.scrollY > 250);
+});
+
+// ── BUILD INDEX ───────────────────────────────────────────
+function buildIndex() {
+  const p = document.getElementById('p-index');
+  p.innerHTML = `
+    <div class="idx-header">
+      <h2>Educação Física</h2>
+      <p>CP-T/2026 · Material de Estudo Consolidado</p>
+    </div>
+    <div id="topic-idx">
+      ${CONTENT.map(t => `
+        <div class="idx-card" onclick="goTab('${t.id}', document.querySelector('[onclick=\\'goTab(\\\\u0022${t.id}\\\\u0022,this)\\']'))">
+          <div class="idx-ic">${t.icon}</div>
+          <div class="idx-info">
+            <div class="idx-name">${t.name}</div>
+            <div class="idx-bib">${t.bib}</div>
+          </div>
+          <div class="idx-arrow">›</div>
+        </div>`).join('')}
+    </div>`;
+  // simpler onclick approach:
+  p.querySelectorAll('.idx-card').forEach((card, i) => {
+    card.onclick = () => {
+      const id = CONTENT[i].id;
+      const btn = [...document.querySelectorAll('.tab-btn')].find(b => b.getAttribute('onclick')?.includes(`'${id}'`));
+      if (btn) goTab(id, btn);
+    };
+  });
+}
+
+// ── BUILD TOPIC PANELS ────────────────────────────────────
+function buildPanels() {
+  CONTENT.forEach(topic => {
+    const p = document.getElementById('p-' + topic.id);
+    if (!p) return;
+    const sectionsHtml = topic.sections.map((sec, i) => `
+      <div class="acc-wrap" id="sec-${topic.id}-${i}">
+        <div class="acc-hdr" onclick="toggleAcc(this)">
+          <div class="acc-hdr-left">
+            <span class="acc-num">${String(i+1).padStart(2,'0')}</span>
+            <span class="acc-ttl">${sec.title}</span>
+          </div>
+          <span class="acc-arrow">▾</span>
+        </div>
+        <div class="acc-body">${sec.body}</div>
+      </div>`).join('');
+
+    p.innerHTML = `
+      <div class="hero" data-icon="${topic.icon}">
+        <div class="hero-label">CP-T/2026 · ${topic.id === '1' ? 'Anatomia' : topic.name}</div>
+        <div class="hero-title" id="p-${topic.id}-title" data-name="${topic.name}">${topic.name}</div>
+        <div class="hero-bib">${topic.bib}</div>
+        <div class="hero-tags">${topic.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="section">${sectionsHtml}</div>`;
+  });
+}
+
+buildIndex();
+buildPanels();
+</script>
+</body>
+</html>
